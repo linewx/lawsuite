@@ -8,7 +8,7 @@ public class ValidationResult {
     String message;
 
     public ValidationResult(Boolean result, String message) {
-        this.result = this.result;
+        this.result = result;
         this.message = message;
     }
 

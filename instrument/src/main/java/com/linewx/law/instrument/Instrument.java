@@ -1,6 +1,7 @@
 package com.linewx.law.instrument;
 
 import com.linewx.law.instrument.Validator.InstrumentValidator;
+import com.linewx.law.instrument.Validator.ValidationResult;
 import com.linewx.law.instrument.Validator.Validator;
 import com.linewx.law.instrument.utils.AmountParserUtil;
 import com.linewx.law.instrument.utils.AmountUtil;
@@ -342,8 +343,14 @@ public class Instrument {
     }
 
     public void loadContent() {
-        validator.validate(context);
-        setContent(context);
+        ValidationResult validationResult = validator.validate(context);
+        if (validationResult.getResult()) {
+            setContent(context);
+            printContent();
+        }else {
+            System.out.println("error:" + validationResult.getMessage());
+        }
+
     }
 
     public void setContent(ParseContext context) {
@@ -573,7 +580,7 @@ public class Instrument {
         for(Map.Entry<String,String> oneName: NameMapping.names.entrySet()) {
             try {
                 Method method = c.getDeclaredMethod("get" + WordUtils.capitalize(oneName.getKey()));
-                System.out.println(method.invoke(this));
+                System.out.println(oneName.getValue() + ":" + method.invoke(this));
             }catch(Exception e){
 
             }
@@ -581,10 +588,4 @@ public class Instrument {
         }
     }
 
-
-
-
-    public Boolean validate() {
-        return true;
-    }
 }
