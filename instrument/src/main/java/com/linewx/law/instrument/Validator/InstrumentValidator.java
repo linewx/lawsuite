@@ -1,5 +1,6 @@
 package com.linewx.law.instrument.Validator;
 
+import com.linewx.law.instrument.exception.InstrumentParserException;
 import com.linewx.law.parser.ParseContext;
 
 import java.util.List;
@@ -11,26 +12,18 @@ import java.util.Map;
 public class InstrumentValidator implements Validator{
     @Override
     public ValidationResult validate(ParseContext context) {
-        //validate court
+        //validation
         Map<String, List<String>> results = context.getResults();
 
-        //validate court
-
-
-
-
         //validate accuser:原告
-        List<String> accuserResult = results.get("accuser");
-        if (accuserResult == null || accuserResult.isEmpty()) {
-            return new ValidationResult(false, "no accuser found");
-        }
+        validateField(results, "accuser", true, null);
         //validate accuserLegalEntity:原告法人代表
         //validate accuserLawyer:原告律师
         //validate accuserLawyerOffice:原告律师的律师事务所
         //validate defendant:被告  at least one
         List<String> defendantResult = results.get("defendant");
         if (defendantResult == null || defendantResult.isEmpty()) {
-            return new ValidationResult(false, "no defendant found");
+            throw new InstrumentParserException("no defendant found", InstrumentParserException.ErrorCode.VALIDATION);
         }
         //validate defendantLegalEntity:被告法人代表
         //validate defendantLawyer:被告律师
@@ -38,52 +31,53 @@ public class InstrumentValidator implements Validator{
         //validate accuserProperty:原告企业类别和行业属性
         //validate defendantProperty:被告企业类别和行业属性
         //validate judge:法官
-        List<String> judgeResult = results.get("judge");
-        if (judgeResult == null || judgeResult.isEmpty()) {
-            return new ValidationResult(false, "no judge found");
-        }else if(judgeResult.size() > 3) {
-            return new ValidationResult(false, "more than 3 judges have been found: " + judgeResult.toString());
-        }
-
         //validate mainJudge:主审法官
-
         //validate secondaryJudge:非主审法官
         //validate secondaryJudge1:非主审法官1
         //validate secondaryJudge2:非主审法官2
+        List<String> judgeResult = results.get("judge");
+        if (judgeResult == null || judgeResult.isEmpty()) {
+            throw  new InstrumentParserException("no judge found", InstrumentParserException.ErrorCode.VALIDATION);
+        }else if(judgeResult.size() > 3) {
+            throw new InstrumentParserException("more than 3 judges have been found: " + judgeResult.toString(), InstrumentParserException.ErrorCode.VALIDATION);
+        }
+        
         //validate date:判决日期
         List<String> dateResult = results.get("date");
         if (dateResult == null || dateResult.isEmpty()) {
-            return new ValidationResult(false, "no date found");
+            throw new InstrumentParserException("no date found", InstrumentParserException.ErrorCode.VALIDATION);
         }else if(dateResult.size() > 1) {
-            return new ValidationResult(false, "two or more main date have been found: " + dateResult.toString());
+            throw new InstrumentParserException("two or more than date have been found: " + dateResult.toString(), InstrumentParserException.ErrorCode.VALIDATION);
         }
         //validate clerk:书记员
         List<String> clerkResult = results.get("clerk");
         if (clerkResult == null || clerkResult.isEmpty()) {
-            return new ValidationResult(false, "no clerk found");
+            throw new InstrumentParserException("no clerk found", InstrumentParserException.ErrorCode.VALIDATION);
         }else if(clerkResult.size() > 1) {
-            return new ValidationResult(false, "two or more main clerk have been found: " + clerkResult.toString());
+            throw new InstrumentParserException("two or more than clerk have been found: " + clerkResult.toString(), InstrumentParserException.ErrorCode.VALIDATION);
         }
 
         //validate reason:案由
         List<String> reasonResult = results.get("reason");
         if (reasonResult == null || reasonResult.isEmpty()) {
-            return new ValidationResult(false, "no reason found");
+            throw new InstrumentParserException("no reason found", InstrumentParserException.ErrorCode.VALIDATION);
         }else if(reasonResult.size() > 1) {
-            return new ValidationResult(false, "two or more reason have been found: " + reasonResult.toString());
+            throw new InstrumentParserException("two or more than reason have been found: " + clerkResult.toString(), InstrumentParserException.ErrorCode.VALIDATION);
         }
 
         //validate number:案号
         List<String> numberResult = results.get("number");
         if (numberResult == null || numberResult.isEmpty()) {
-            return new ValidationResult(false, "no number found");
+            throw new InstrumentParserException("no number found", InstrumentParserException.ErrorCode.VALIDATION);
         }else if(numberResult.size() > 1) {
-            return new ValidationResult(false, "two or more number have been found: " + numberResult.toString());
+            throw new InstrumentParserException("two or more than reason have been found: " + clerkResult.toString(), InstrumentParserException.ErrorCode.VALIDATION);
+            
         }
 
         //validate caseType:案件类型
         List<String> caseTypeResult = results.get("caseType");
         if (caseTypeResult == null || caseTypeResult.isEmpty()) {
+            throw new InstrumentParserException("no caseType found", InstrumentParserException.ErrorCode.VALIDATION);
             return new ValidationResult(false, "no case type found");
         }else if(caseTypeResult.size() > 1) {
             return new ValidationResult(false, "two or more case type have been found: " + caseTypeResult.toString());
@@ -141,7 +135,22 @@ public class InstrumentValidator implements Validator{
         //validate firstConciliation:一审调解结案
 
         return new ValidationResult(true, "");
-
-
     }
+
+    private void validateField(Map<String, List<String>> results, String fieldName, Boolean required, Integer maxNumber) {
+        List<String> oneResult = results.get(fieldName);
+        if (required) {
+            //validate required
+            if (oneResult == null || oneResult.isEmpty()) {
+                throw new InstrumentParserException("no number found", InstrumentParserException.ErrorCode.VALIDATION);
+            }
+        }
+
+        if (maxNumber != null) {
+            if(oneResult.size() > maxNumber) {
+                throw new InstrumentParserException("two or more than reason have been found: " + oneResult.toString(), InstrumentParserException.ErrorCode.VALIDATION);
+            }
+        }
+    }
+
 }
