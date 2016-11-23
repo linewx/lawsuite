@@ -1,5 +1,6 @@
 package com.linewx.law.instrument.utils;
 
+import com.linewx.law.instrument.exception.InstrumentParserException;
 import com.linewx.law.parser.Processor.Processor;
 
 import java.io.BufferedReader;
@@ -54,7 +55,7 @@ public class ReasonUtil{
             return secondaryReasonMatcher.group(1);
         }
 
-        throw new RuntimeException("不明案由");
+        throw new InstrumentParserException("不明案由");
     }
 
 

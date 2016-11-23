@@ -1,6 +1,7 @@
 package com.linewx.law.instrument;
 
 import com.google.gson.Gson;
+import com.linewx.law.instrument.exception.InstrumentParserException;
 import com.linewx.law.instrument.parser.InstrumentParser;
 import com.linewx.law.parser.ParseContext;
 import com.linewx.law.parser.ParseStateMachine;
@@ -35,10 +36,10 @@ public class MainApp {
         final RuleJson rule = new MainApp().readRule();
         //testRe();
 
-        //parseFiles(rule, "C:\\Users\\lugan\\git\\law\\sourcefile\\");
+        //parseFiles(rule, "/users/luganlin/Documents/download");
         //parseFilesSync(rule, "/users/luganlin/Documents/download");
-        parseFile(rule, "/users/luganlin/Documents/download/test.html");
-        //instrument.loadContent();
+        parseFile(rule, "/users/luganlin/Documents/download/f0e2f7e8-a627-405e-a55e-af17e4ee14bf.html");
+
     }
 
     public static void parseFile(RuleJson rule, String fileName) throws Exception {
@@ -94,16 +95,21 @@ public class MainApp {
                         InstrumentParser parser = new InstrumentParser(rule, InstrumentTypeEnum.CIVIL_JUDGMENT);
                         Instrument instrument = parser.parse(statements);
 
+                    } catch (InstrumentParserException e) {
+                        if (!e.getErrorCode().equals(InstrumentParserException.ErrorCode.UNSUPPORTED_TYPE)) {
+                            /*********** exception error ****************/
+                            System.out.println("*********** validation error ****************");
+                            System.out.println("-- origin content --");
+                            //System.out.println("file name: " + file.getName());
+                            System.out.println(String.join("\n", statements));
+                            System.out.println("-- error message --");
+                            System.out.println("file name:" + file.getName());
+                            System.out.println(e.getMessage());
+                            System.out.println("*********** end validation error ************");
+                        }
+
                     } catch (Exception e) {
-                        /*********** exception error ****************/
-                        System.out.println("*********** validation error ****************");
-                        System.out.println("-- origin content --");
-                        //System.out.println("file name: " + file.getName());
-                        System.out.println(String.join("\n", statements));
-                        System.out.println("-- error message --");
-                        System.out.println("file name:" + file.getName());
-                        System.out.println(e.getMessage());
-                        System.out.println("*********** end validation error ************");
+                        e.printStackTrace();
                     }
 
                     return true;

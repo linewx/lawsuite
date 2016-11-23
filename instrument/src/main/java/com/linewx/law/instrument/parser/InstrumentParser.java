@@ -29,6 +29,7 @@ public class InstrumentParser {
         ParseStateMachine stateMachine = new ParseStateMachine(rule);
         stateMachine.run(context, statements);
         Instrument instrument = new Instrument(context, type);
+        instrument.loadContent();
         return instrument;
     }
 }

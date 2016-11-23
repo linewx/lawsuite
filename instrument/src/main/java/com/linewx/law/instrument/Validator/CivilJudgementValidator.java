@@ -116,13 +116,13 @@ public class CivilJudgementValidator implements Validator{
         if (required) {
             //validate required
             if (oneResult == null || oneResult.isEmpty()) {
-                throw new InstrumentParserException("no number found", InstrumentParserException.ErrorCode.VALIDATION);
+                throw new InstrumentParserException("no " + fieldName + " found", InstrumentParserException.ErrorCode.VALIDATION);
             }
         }
 
         if (maxNumber != null) {
             if(oneResult.size() > maxNumber) {
-                throw new InstrumentParserException("two or more than reason have been found: " + oneResult.toString(), InstrumentParserException.ErrorCode.VALIDATION);
+                throw new InstrumentParserException(maxNumber + " or more than "+ fieldName +" have been found: " + oneResult.toString(), InstrumentParserException.ErrorCode.VALIDATION);
             }
         }
     }

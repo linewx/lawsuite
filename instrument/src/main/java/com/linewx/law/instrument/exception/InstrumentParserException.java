@@ -51,4 +51,8 @@ public class InstrumentParserException extends RuntimeException {
         super(message, e);
         this.errorCode = errorCode;
     }
+
+    public ErrorCode getErrorCode() {
+        return this.errorCode;
+    }
 }

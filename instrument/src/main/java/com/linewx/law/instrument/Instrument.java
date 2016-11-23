@@ -555,7 +555,7 @@ public class Instrument {
             }
         }
         if (costOnAccuser == null || costOnDefendant == null) {
-            throw new RuntimeException("can not identify the cost on accuser on defendant");
+            throw new InstrumentParserException("can not identify the cost on accuser on defendant");
         }
         accuserWinPer = (totalCost - costOnAccuser) * 100/totalCost;
         defendantWinPer = 100 - accuserWinPer;
