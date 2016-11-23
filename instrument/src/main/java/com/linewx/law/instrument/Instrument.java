@@ -348,7 +348,8 @@ public class Instrument {
             setContent(context);
             printContent();
         }else {
-            System.out.println("error:" + validationResult.getMessage());
+            printError(validationResult.getMessage());
+            //System.out.println("error:" + validationResult.getMessage());
         }
 
     }
@@ -575,8 +576,26 @@ public class Instrument {
         }
     }
 
+
+    public void printError(String error) {
+        System.out.println("############### start parse ##########");
+        System.out.println(String.join("\n", context.getResults().get("rawdata")));
+        System.out.println("------ result ------");
+        System.out.println("状态:" + context.getCurrentState());
+        System.out.println("文件名称:" + context.getResults().get("filename"));
+        System.out.println("error: " + error);
+        System.out.println("############### end parse ##########");
+    }
+
     public void printContent() {
         Class<?> c = this.getClass();
+        System.out.println("############### start parse ##########");
+        System.out.println(String.join("\n", context.getResults().get("rawdata")));
+        System.out.println("------ result ------");
+        System.out.println("状态:" + context.getCurrentState());
+        System.out.println("文件名称:" + context.getResults().get("filename"));
+        //System.out.println("原告金额:" + this.getResults().get("accuserAmountLines"));
+
         for(Map.Entry<String,String> oneName: NameMapping.names.entrySet()) {
             try {
                 Method method = c.getDeclaredMethod("get" + WordUtils.capitalize(oneName.getKey()));
@@ -584,8 +603,8 @@ public class Instrument {
             }catch(Exception e){
 
             }
-
         }
+        System.out.println("############### end parse ##########");
     }
 
 }

@@ -1,7 +1,6 @@
 package com.linewx.law.parser;
 
 import com.google.gson.Gson;
-import com.linewx.law.parser.ParseContext;
 import com.linewx.law.parser.json.RuleJson;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -99,7 +98,7 @@ public class ParserTest {
 
     public RuleJson readRule() throws IOException {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        InputStream is = classloader.getResourceAsStream("rule.json");
+        InputStream is = classloader.getResourceAsStream("rule1.json");
         Gson gson = new Gson();
         BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(is));

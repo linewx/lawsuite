@@ -123,7 +123,7 @@ public class InstrumentValidator implements Validator{
         //validate cost:案件受理费
         List<String> costResult = results.get("cost");
         if (costResult == null || costResult.isEmpty()) {
-            return new ValidationResult(false, "no court found");
+            return new ValidationResult(false, "no cost found");
         }else if(costResult.size() > 1) {
             return new ValidationResult(false, "two or more court have been found: " + costResult.toString());
         }

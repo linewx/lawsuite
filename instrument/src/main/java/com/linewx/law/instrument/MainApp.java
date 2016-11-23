@@ -15,10 +15,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,13 +31,13 @@ public class MainApp {
 
         final RuleJson rule = new MainApp().readRule();
         //testRe();
-        //parseFiles(rule, "/users/luganlin/Documents/download");
+        parseFiles(rule, "C:\\Users\\lugan\\git\\law\\sourcefile\\");
         //parseFilesSync(rule, "/users/luganlin/Documents/download");
-        Instrument instrument = new Instrument(parseFile(rule, "C:\\Users\\lugan\\git\\law\\sourcefile\\test.html"));
-        instrument.loadContent();
+        //Instrument instrument = new Instrument(parseFile(rule, "C:\\Users\\lugan\\git\\law\\sourcefile\\test.html"));
+        //instrument.loadContent();
     }
 
-    public static ParseContext parseFile (RuleJson rule, String fileName) throws Exception{
+    public static ParseContext parseFile(RuleJson rule, String fileName) throws Exception {
         File file = new File(fileName);
         Document doc = Jsoup.parse(file, "GBK");
         Element element = doc.getElementById("DivContent");
@@ -60,15 +57,15 @@ public class MainApp {
     }
 
 
-    public static void parseFiles(RuleJson rule, String folder) throws Exception{
+    public static void parseFiles(RuleJson rule, String folder) throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(8);
         File dir = new File(folder);
 
         List<Future> futures = new ArrayList<>();
         for (File file : dir.listFiles()) {
-            Future<ParseContext> future = executor.submit(new Callable<ParseContext>() {
+            Future<Boolean> future = executor.submit(new Callable<Boolean>() {
                 @Override
-                public ParseContext call() {
+                public Boolean call() {
                     ParseContext context = new ParseContext();
                     try {
                         Document doc = Jsoup.parse(file, "GBK");
@@ -91,15 +88,24 @@ public class MainApp {
                         e.printStackTrace();
                     }
 
-                    return context;
+                    try {
+                        Instrument instrument = new Instrument(context);
+                        instrument.loadContent();
+                    } catch (Exception e) {
+                        context.printContext();
+                        e.printStackTrace();
+                    }
+
+                    //instrument.printContent();
+                    return true;
                 }
             });
 
             futures.add(future);
         }
 
-        for (Future future: futures) {
-            ((ParseContext)future.get()).validate();
+        for (Future future : futures) {
+            future.get();
         }
 
 
@@ -158,19 +164,19 @@ public class MainApp {
         //（2015）宁民申177号, （2015）宁民申字第177号，匹配申
         Pattern prefixPattern = Pattern.compile(".*([^字|第\\d]).*号$");
         Matcher prefixMatcher = prefixPattern.matcher("（2015）宁民申字第177号");
-        if(prefixMatcher.find()) {
+        if (prefixMatcher.find()) {
             System.out.println(prefixMatcher.group(1));
         }
 
         Pattern testPattern = Pattern.compile("(合同|同)aa$");
         Matcher testMatcher = testPattern.matcher("商业合同aa");
-        if(testMatcher.find()) {
+        if (testMatcher.find()) {
             System.out.println(testMatcher.group(1));
         }
 
         Pattern amountPattern = Pattern.compile("^案件受理费.*原告.*?负担(\\d*)");
         Matcher amountMatcher = amountPattern.matcher("案件受理费1264950元，原告资产公司负担123123元，由被告化工公司负担632475元，");
-        if(amountMatcher.find()) {
+        if (amountMatcher.find()) {
             System.out.println(amountMatcher.group(1));
             //System.out.println(amountMatcher.group(2));
         }
@@ -178,7 +184,7 @@ public class MainApp {
 
     }
 
-    public static void parseFilesSync(RuleJson rule, String folder) throws Exception{
+    public static void parseFilesSync(RuleJson rule, String folder) throws Exception {
 
         File dir = new File(folder);
 
@@ -204,6 +210,7 @@ public class MainApp {
                 //file.exists();
 
             } catch (Exception e) {
+                System.out.println(file.getName());
                 e.printStackTrace();
             }
 
