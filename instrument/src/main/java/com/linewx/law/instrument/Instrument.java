@@ -1,8 +1,16 @@
 package com.linewx.law.instrument;
 
+import com.linewx.law.instrument.Validator.InstrumentValidator;
 import com.linewx.law.instrument.Validator.Validator;
+import com.linewx.law.instrument.utils.AmountParserUtil;
+import com.linewx.law.instrument.utils.AmountUtil;
+import com.linewx.law.instrument.utils.ReasonUtil;
+import com.linewx.law.parser.NameMapping;
 import com.linewx.law.parser.ParseContext;
+import com.sun.deploy.util.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,14 +44,14 @@ public class Instrument {
     private String suiteDate;  //立案年份
     private String level;  //审级
     private String court;  //法院
-    private String cost;  //案件受理费
-    private String amount;  //诉请金额
+    private Long cost;  //案件受理费
+    private Long amount;  //诉请金额
     private Boolean ignoreAmount;  //诉请金额忽略标志
     private Boolean discountHalf;  //受理费减半
     private Long costOnDefendant;  //被告负担受理费
     private Long costOnAccuser;  //原告负担受理费
-    private float accuserWinPer;  //本案原告胜率
-    private float defendantWinPer;  //本案被告胜率
+    private Long accuserWinPer;  //本案原告胜率
+    private Long defendantWinPer;  //本案被告胜率
     private Long accuserAmount;  //原告主要诉请获支持金额
     private float accuserAmountPer;  //原告主要诉请获支持率
     private float defendantAmountPer;  //被告抗辩获支持率
@@ -51,6 +59,7 @@ public class Instrument {
     private List<String> errorMessage = new ArrayList<>();
 
     private Validator validator;
+    private ParseContext context;
 
 
     public String getAccuser() {
@@ -229,19 +238,19 @@ public class Instrument {
         this.court = court;
     }
 
-    public String getCost() {
+    public Long getCost() {
         return cost;
     }
 
-    public void setCost(String cost) {
+    public void setCost(Long cost) {
         this.cost = cost;
     }
 
-    public String getAmount() {
+    public Long getAmount() {
         return amount;
     }
 
-    public void setAmount(String amount) {
+    public void setAmount(Long amount) {
         this.amount = amount;
     }
 
@@ -277,19 +286,19 @@ public class Instrument {
         this.costOnAccuser = costOnAccuser;
     }
 
-    public float getAccuserWinPer() {
+    public Long getAccuserWinPer() {
         return accuserWinPer;
     }
 
-    public void setAccuserWinPer(float accuserWinPer) {
+    public void setAccuserWinPer(Long accuserWinPer) {
         this.accuserWinPer = accuserWinPer;
     }
 
-    public float getDefendantWinPer() {
+    public Long getDefendantWinPer() {
         return defendantWinPer;
     }
 
-    public void setDefendantWinPer(float defendantWinPer) {
+    public void setDefendantWinPer(Long defendantWinPer) {
         this.defendantWinPer = defendantWinPer;
     }
 
@@ -328,16 +337,13 @@ public class Instrument {
 
 
     public Instrument(ParseContext context) {
-
+        this.context = context;
+        this.validator = new InstrumentValidator();
     }
 
-    private void setCourt(List<String> result) {
-
-    }
-
-
-    public void loadContext(ParseContext context) {
+    public void loadContent() {
         validator.validate(context);
+        setContent(context);
     }
 
     public void setContent(ParseContext context) {
@@ -345,7 +351,7 @@ public class Instrument {
         Map<String, List<String>> results = context.getResults();
 
         //set accuser:原告
-        accuser = String.join("|", results.get(accuser));
+        accuser = String.join("|", results.get("accuser"));
 
         //set accuserLegalEntity:原告法人代表
         List<String> accuserLegalEntityResult = results.get("accuserLegalEntity");
@@ -368,7 +374,7 @@ public class Instrument {
 
 
         //set defendant:被告
-        defendant = String.join("|", results.get(defendant));
+        defendant = String.join("|", results.get("defendant"));
 
         //set defendantLegalEntity:被告法人代表
         List<String> defendantLegalEntityResult = results.get("defendantLegalEntity");
@@ -421,7 +427,8 @@ public class Instrument {
         clerk = results.get("clerk").get(0);
 
         //set reason:案由
-
+        //todo: exception handle
+        reason = ReasonUtil.getReason(results.get("reason").get(0));
 
         //set number:案号
         number = results.get("number").get(0);
@@ -442,25 +449,136 @@ public class Instrument {
         court = results.get("court").get(0);
 
         //set cost:案件受理费
-        cost = results.get("cost").get(0);
+        cost = AmountParserUtil.ParseLong(results.get("cost").get(0));
+
+        //set ignoreAmount:诉请金额忽略标志
+        //todo: exception handle
+        ignoreAmount = !AmountUtil.isCharge(ReasonUtil.getReasonNumber(reason), cost);
 
         //set amount:诉请金额
-        //set ignoreAmount:诉请金额忽略标志
-
+        if (!ignoreAmount) {
+            amount = AmountUtil.calculateAmount(cost);
+        }else {
+            amount = 0L;
+        }
 
         //set discountHalf:受理费减半
         if (results.get("discountHalf") != null) {
             discountHalf = true;
         }
 
+
         //set costOnDefendant:被告负担受理费
         //set costOnAccuser:原告负担受理费
         //set accuserWinPer:本案原告胜率
         //set defendantWinPer:本案被告胜率
+        calculateCost();
+
         //set accuserAmount:原告主要诉请获支持金额
         //set accuserAmountPer:原告主要诉请获支持率
         //set defendantAmountPer:被告抗辩获支持率
+        calculateAmount();
+
+
         //set firstConciliation:一审调解结案
+    }
+
+
+    private void calculateCost() {
+        Long totalCost = cost/2;
+        if (totalCost == 0) {
+            costOnDefendant = 0L;
+            costOnAccuser = 0L;
+            accuserWinPer = 50L;
+            defendantAmountPer = 50L;
+            return;
+        }
+
+        // caculate cost on accuser
+        List<String> costsOnAccuser = context.getResults().get("costOnAccuser");
+        if (costsOnAccuser != null && costsOnAccuser.size() == 1) {
+            //有原告信息
+            if (costsOnAccuser.get(0).isEmpty()) {
+                //全部由原告承担
+                costOnAccuser = totalCost;
+                costOnDefendant = 0L;
+            }else {
+                //部分由原告承担
+                costOnAccuser = Long.parseLong(costsOnAccuser.get(0));
+                costOnDefendant = totalCost - costOnAccuser;
+            }
+        }else {
+            //无原告信息
+            List<String> costsOnDefendant = context.getResults().get("costOnDefendant");
+            if (costsOnDefendant != null && costsOnDefendant.size() == 1) {
+                //有被告信息
+                if (costsOnDefendant.get(0).isEmpty()) {
+                    costOnDefendant = totalCost;
+                    costOnAccuser = 0L;
+                }else {
+                    costOnDefendant = Long.parseLong(costsOnDefendant.get(0));
+                    costOnAccuser = totalCost - costOnDefendant;
+                }
+            }else {
+                //无原告和被告信息
+                List<String> costUsers = context.getResults().get("costUser");
+                if (costUsers != null) {
+                    //有负担费用人信息
+                    for (String oneAccuser : context.getResults().get("accuser")) {
+                        if (costUsers.get(0).contains(oneAccuser)) {
+                            //原告人承担
+                            costOnAccuser = totalCost;
+                            costOnDefendant = 0L;
+                            break;
+                        }
+                    }
+
+                    for (String oneDefendant : context.getResults().get("defendant")) {
+                        if (costUsers.get(0).contains(oneDefendant)) {
+                            //被告人承担
+                            costOnDefendant = totalCost;
+                            costOnAccuser = 0L;
+                        }
+                    }
+
+                }
+            }
+        }
+
+        accuserWinPer = (totalCost - costOnAccuser) * 100/totalCost;
+        defendantWinPer = 100 - accuserWinPer;
+    }
+
+    private void calculateAmount() {
+        if (ignoreAmount || amount == 0) {
+            accuserAmount = 0L;
+            accuserAmountPer = 50L;
+            defendantAmountPer = 50L;
+        }else {
+            List<String> accuserAmountLines = this.context.getResults().get("accuserAmountLines");
+            if (accuserAmountLines == null) {
+                //todo: amount line can not be found
+                //log warning...
+            }else {
+                accuserAmount = AmountParserUtil.getMainAmountSum(String.join("", accuserAmountLines));
+            }
+
+            accuserAmountPer = accuserAmount * 100 / amount;
+            defendantAmountPer = 100 - accuserAmountPer;
+        }
+    }
+
+    public void printContent() {
+        Class<?> c = this.getClass();
+        for(Map.Entry<String,String> oneName: NameMapping.names.entrySet()) {
+            try {
+                Method method = c.getDeclaredMethod("get" + WordUtils.capitalize(oneName.getKey()));
+                System.out.println(method.invoke(this));
+            }catch(Exception e){
+
+            }
+
+        }
     }
 
 

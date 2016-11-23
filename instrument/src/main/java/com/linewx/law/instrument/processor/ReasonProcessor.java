@@ -1,15 +1,12 @@
-package com.linewx.law.parser.Processor;
+package com.linewx.law.instrument.processor;
 
-import com.google.gson.Gson;
+import com.linewx.law.parser.Processor.Processor;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +23,7 @@ public class ReasonProcessor implements Processor {
     private Pattern secondaryReasonPattern;
 
 
-    public ReasonProcessor(){
+    public ReasonProcessor() {
         load();
         /*List<String> reasonList = new ArrayList<>();
         reasonList.addAll(reasonIndex.keySet());
@@ -65,7 +62,7 @@ public class ReasonProcessor implements Processor {
             BufferedReader bufferedReader = new BufferedReader(
                     new InputStreamReader(is));
             String strLine;
-            while ((strLine = bufferedReader.readLine()) != null)   {
+            while ((strLine = bufferedReader.readLine()) != null) {
                 // Print the content on the console
                 String[] oneReason = strLine.split(",");
                 String number = oneReason[0].trim();
@@ -74,16 +71,15 @@ public class ReasonProcessor implements Processor {
                 reasons.put(number, name);
                 reasonIndex.put(name, number);
 
-                for(int i=0; i<name.length(); i++) {
+                for (int i = 0; i < name.length(); i++) {
                     if (name.charAt(i) == '、') {
-                        secondaryIndex.put(name.substring(i+1), number);
+                        secondaryIndex.put(name.substring(i + 1), number);
                     }
                 }
             }
-        }catch(Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
 
 
     }

@@ -1,4 +1,4 @@
-package com.linewx.law.parser.Processor;
+package com.linewx.law.instrument.processor;
 
 import com.linewx.law.parser.Processor.Processor;
 

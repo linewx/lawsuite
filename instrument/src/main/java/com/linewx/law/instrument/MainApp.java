@@ -32,11 +32,12 @@ public class MainApp {
        /* System.out.println(testRe());
         return;*/
 
-        //final RuleJson rule = new MainApp().readRule();
+        final RuleJson rule = new MainApp().readRule();
         //testRe();
         //parseFiles(rule, "/users/luganlin/Documents/download");
         //parseFilesSync(rule, "/users/luganlin/Documents/download");
-        //parseFile(rule, "/users/luganlin/Documents/download/test.html").validate();
+        Instrument instrument = new Instrument(parseFile(rule, "C:\\Users\\lugan\\git\\law\\sourcefile\\test.html"));
+        instrument.loadContent();
     }
 
     public static ParseContext parseFile (RuleJson rule, String fileName) throws Exception{

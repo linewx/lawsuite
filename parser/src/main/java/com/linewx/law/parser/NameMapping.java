@@ -1,5 +1,6 @@
 package com.linewx.law.parser;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -9,7 +10,7 @@ public class NameMapping {
     public static void main(String argv[]) {
 
         for(Map.Entry<String,String> name: names.entrySet()) {
-            System.out.println("    //set "  + name.getKey() + ":" + name.getValue());
+            System.out.println(MessageFormat.format("System.out.println( \"{0}:\" + this);  //"  + name.getKey() + ":" + name.getValue(), name.getValue()));
         }
     }
 
@@ -18,6 +19,7 @@ public class NameMapping {
     public static String get(String field) {
         return names.getOrDefault(field, field);
     }
+
 
     static {
         /********************* 一审规则 *************************/

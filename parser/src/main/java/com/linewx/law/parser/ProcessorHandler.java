@@ -3,7 +3,6 @@ package com.linewx.law.parser;
 import com.linewx.law.parser.Processor.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,8 +13,6 @@ public class ProcessorHandler {
 
     static {
         processors.put("eraseSpace", new EraseSpaceProcessor());
-        processors.put("level", new LevelProcessor());
-        processors.put("reason", new ReasonProcessor());
         processors.put("amount", new AmountProcessor());
         processors.put("date", new DateProcessor());
     }
