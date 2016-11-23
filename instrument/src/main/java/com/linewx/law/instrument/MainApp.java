@@ -1,6 +1,7 @@
 package com.linewx.law.instrument;
 
 import com.google.gson.Gson;
+import com.linewx.law.instrument.Validator.ValidationResult;
 import com.linewx.law.parser.ParseContext;
 import com.linewx.law.parser.ParseStateMachine;
 import com.linewx.law.parser.json.RuleJson;
@@ -31,29 +32,54 @@ public class MainApp {
 
         final RuleJson rule = new MainApp().readRule();
         //testRe();
+
         parseFiles(rule, "C:\\Users\\lugan\\git\\law\\sourcefile\\");
         //parseFilesSync(rule, "/users/luganlin/Documents/download");
-        //Instrument instrument = new Instrument(parseFile(rule, "C:\\Users\\lugan\\git\\law\\sourcefile\\test.html"));
+        //parseFile(rule, "C:\\Users\\lugan\\git\\law\\sourcefile\\test.html");
         //instrument.loadContent();
     }
 
-    public static ParseContext parseFile(RuleJson rule, String fileName) throws Exception {
+    public static void parseFile(RuleJson rule, String fileName) throws Exception {
         File file = new File(fileName);
-        Document doc = Jsoup.parse(file, "GBK");
-        Element element = doc.getElementById("DivContent");
-        Elements elements = element.children();
         List<String> statements = new ArrayList<>();
-        ParseContext context = new ParseContext();
-        for (Element oneElement : elements) {
-            statements.add(oneElement.ownText());
-            context.addResult("rawdata", oneElement.ownText());
+        try {
+            Document doc = Jsoup.parse(file, "GBK");
+            Element element = doc.getElementById("DivContent");
+            Elements elements = element.children();
+
+            ParseContext context = new ParseContext();
+            for (Element oneElement : elements) {
+                statements.add(oneElement.ownText());
+                context.addResult("rawdata", oneElement.ownText());
+            }
+
+            context.setCurrentState("start");
+            ParseStateMachine stateMachine = new ParseStateMachine(rule);
+            stateMachine.run(context, statements);
+            file.exists();
+            Instrument instrument = new Instrument(context);
+            ValidationResult validationResult = instrument.loadContent();
+            if(!validationResult.getResult()) {
+                /*********** validation error ****************/
+                System.out.println("*********** validation error ****************");
+                System.out.println("-- origin content --");
+                System.out.println("file name:" + file.getName());
+                System.out.println(String.join("\n", statements));
+                System.out.println("-- error message --");
+                System.out.println(validationResult.getMessage());
+                System.out.println("*********** end validation error ************");
+            }
+        }catch(Exception e) {
+            /*********** exception error ****************/
+            System.out.println("*********** validation error ****************");
+            System.out.println("-- origin content --");
+            System.out.println("file name: " + file.getName());
+            System.out.println(String.join("\n", statements));
+            System.out.println("-- error message --");
+            System.out.println(e.getMessage());
+            System.out.println("*********** end validation error ************");
         }
 
-        context.setCurrentState("start");
-        ParseStateMachine stateMachine = new ParseStateMachine(rule);
-        stateMachine.run(context, statements);
-        file.exists();
-        return context;
     }
 
 
@@ -67,11 +93,12 @@ public class MainApp {
                 @Override
                 public Boolean call() {
                     ParseContext context = new ParseContext();
+                    List<String> statements = new ArrayList<>();
                     try {
                         Document doc = Jsoup.parse(file, "GBK");
                         Element element = doc.getElementById("DivContent");
                         Elements elements = element.children();
-                        List<String> statements = new ArrayList<>();
+
 
                         context.addResult("filename", file.getName());
                         for (Element oneElement : elements) {
@@ -82,21 +109,33 @@ public class MainApp {
                         context.setCurrentState("start");
                         ParseStateMachine stateMachine = new ParseStateMachine(rule);
                         stateMachine.run(context, statements);
+
+                        Instrument instrument = new Instrument(context);
+                        ValidationResult validationResult = instrument.loadContent();
+                        if(!validationResult.getResult()) {
+                            /*********** validation error ****************/
+                            System.out.println("*********** validation error ****************");
+                            System.out.println("-- origin content --");
+                            System.out.println(String.join("\n", statements));
+                            System.out.println("-- error message --");
+                            System.out.println("file name:" + file.getName());
+                            System.out.println(validationResult.getMessage());
+                            System.out.println("*********** end validation error ************");
+                        }
                         //file.exists();
 
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        /*********** exception error ****************/
+                        System.out.println("*********** validation error ****************");
+                        System.out.println("-- origin content --");
+                        //System.out.println("file name: " + file.getName());
+                        System.out.println(String.join("\n", statements));
+                        System.out.println("-- error message --");
+                        System.out.println("file name:" + file.getName());
+                        System.out.println(e.getMessage());
+                        System.out.println("*********** end validation error ************");
                     }
 
-                    try {
-                        Instrument instrument = new Instrument(context);
-                        instrument.loadContent();
-                    } catch (Exception e) {
-                        context.printContext();
-                        e.printStackTrace();
-                    }
-
-                    //instrument.printContent();
                     return true;
                 }
             });
@@ -215,12 +254,5 @@ public class MainApp {
             }
 
         }
-    }
-
-    public static void testAmount() {
-        //Map<Long, Long> amountFormular = new HashMap<>();
-        LinkedHashMap<Long, Long> amountFormular = new LinkedHashMap<>();
-        Double a = 10000L * 0.7;
-
     }
 }

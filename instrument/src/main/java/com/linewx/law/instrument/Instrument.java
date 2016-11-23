@@ -8,12 +8,10 @@ import com.linewx.law.instrument.utils.AmountUtil;
 import com.linewx.law.instrument.utils.ReasonUtil;
 import com.linewx.law.parser.NameMapping;
 import com.linewx.law.parser.ParseContext;
-import com.sun.deploy.util.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -342,16 +340,18 @@ public class Instrument {
         this.validator = new InstrumentValidator();
     }
 
-    public void loadContent() {
+    public ValidationResult loadContent() {
         ValidationResult validationResult = validator.validate(context);
         if (validationResult.getResult()) {
             setContent(context);
-            printContent();
+            //printContent();
         }else {
-            printError(validationResult.getMessage());
+            //return validationResult;
+            //printError(validationResult.getMessage());
             //System.out.println("error:" + validationResult.getMessage());
         }
 
+        return validationResult;
     }
 
     public void setContent(ParseContext context) {
@@ -493,7 +493,12 @@ public class Instrument {
 
 
     private void calculateCost() {
-        Long totalCost = cost/2;
+        Long totalCost = cost;
+
+        if (discountHalf != null && discountHalf) {
+            totalCost = totalCost/2;
+        }
+
         if (totalCost == 0) {
             costOnDefendant = 0L;
             costOnAccuser = 0L;
@@ -552,7 +557,9 @@ public class Instrument {
                 }
             }
         }
-
+        if (costOnAccuser == null || costOnDefendant == null) {
+            throw new RuntimeException("can not identify the cost on accuser on defendant");
+        }
         accuserWinPer = (totalCost - costOnAccuser) * 100/totalCost;
         defendantWinPer = 100 - accuserWinPer;
     }
