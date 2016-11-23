@@ -1,8 +1,9 @@
 package com.linewx.law.instrument;
 
-import com.linewx.law.instrument.Validator.InstrumentValidator;
-import com.linewx.law.instrument.Validator.ValidationResult;
+import com.linewx.law.instrument.Validator.CivilJudgementValidator;
 import com.linewx.law.instrument.Validator.Validator;
+import com.linewx.law.instrument.Validator.ValidatorFactory;
+import com.linewx.law.instrument.exception.InstrumentParserException;
 import com.linewx.law.instrument.utils.AmountParserUtil;
 import com.linewx.law.instrument.utils.AmountUtil;
 import com.linewx.law.instrument.utils.ReasonUtil;
@@ -335,23 +336,19 @@ public class Instrument {
 
 
 
-    public Instrument(ParseContext context) {
+    public Instrument(ParseContext context, InstrumentTypeEnum type) {
         this.context = context;
-        this.validator = new InstrumentValidator();
+        this.validator = ValidatorFactory.getValidator(type);
+        if (this.validator == null) {
+            throw new InstrumentParserException("no proper validator found");
+        }
     }
 
-    public ValidationResult loadContent() {
-        ValidationResult validationResult = validator.validate(context);
-        if (validationResult.getResult()) {
+    public Boolean loadContent() {
+        if (validator.validate(context)) {
             setContent(context);
-            //printContent();
-        }else {
-            //return validationResult;
-            //printError(validationResult.getMessage());
-            //System.out.println("error:" + validationResult.getMessage());
         }
-
-        return validationResult;
+        return true;
     }
 
     public void setContent(ParseContext context) {

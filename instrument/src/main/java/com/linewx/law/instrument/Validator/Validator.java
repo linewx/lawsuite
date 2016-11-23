@@ -6,5 +6,7 @@ import com.linewx.law.parser.ParseContext;
  * Created by luganlin on 11/22/16.
  */
 public interface Validator {
-    ValidationResult validate(ParseContext context);
+    String getType();
+
+    Boolean validate(ParseContext context);
 }
