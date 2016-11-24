@@ -534,7 +534,7 @@ public class Instrument {
         }else {
             //无原告信息
             List<String> costsOnDefendant = context.getResults().get("costOnDefendant");
-            if (costsOnDefendant != null && costsOnDefendant.size() == 1) {
+            if (costsOnDefendant != null) {
                 //有被告信息
                 if (costsOnDefendant.get(0).isEmpty()) {
                     costOnDefendant = totalCost;

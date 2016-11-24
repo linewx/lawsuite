@@ -52,8 +52,13 @@ public class CivilJudgementValidator implements Validator{
         List<String> defendantLawyerOfficeResult = results.get("defendantLawyerOffice");
         if (defendantLawyerResult != null && defendantLawyerOfficeResult != null) {
             if (defendantLawyerResult.size() != defendantLawyerOfficeResult.size()) {
-                throw new InstrumentParserException("mismatch defendantLawyer and defendantLawyerOffice");
+
+                throw new InstrumentParserException("mismatch defendantLawyer and defendantLawyerOffice:" + defendantLawyerResult.toString() + defendantLawyerOfficeResult.toString());
             }
+        }else if (defendantLawyerOfficeResult == null && defendantLawyerResult != null) {
+            throw new InstrumentParserException("on related lawyer office found");
+        }else if (defendantLawyerOfficeResult != null && defendantLawyerResult == null) {
+            throw new InstrumentParserException("found lawyer office, no related lawyer found");
         }
 
         //validate accuserProperty:原告企业类别和行业属性
@@ -70,7 +75,7 @@ public class CivilJudgementValidator implements Validator{
         validateField(results, "date", true, 1);
 
         //validate clerk:书记员
-        validateField(results, "clerk", true, 1);
+        validateField(results, "clerk", true, null);
 
         //validate reason:案由
         validateField(results, "reason", true, 1);
