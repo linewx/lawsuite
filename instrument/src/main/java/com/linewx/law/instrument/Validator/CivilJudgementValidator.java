@@ -43,6 +43,9 @@ public class CivilJudgementValidator implements Validator{
         List<String> accuserLawyerOfficeResults = results.get("accuserLawyer");
         if (accuserLawyerResults != null && accuserLawyerOfficeResults != null) {
             if (accuserLawyerOfficeResults.size() != accuserLawyerResults.size()) {
+                for(Map.Entry<String, String> name: NameMapping.names.entrySet()) {
+                    logger.error(name.getValue() + ":" + (results.get(name.getKey()) == null ? "null" : results.get(name.getKey()).toString()));
+                }
                 throw new InstrumentParserException("mismatch accuserLawyer and accuserLawyerOffice");
             }
         }
@@ -58,7 +61,9 @@ public class CivilJudgementValidator implements Validator{
         List<String> defendantLawyerOfficeResult = results.get("defendantLawyerOffice");
         if (defendantLawyerResult != null && defendantLawyerOfficeResult != null) {
             if (defendantLawyerResult.size() != defendantLawyerOfficeResult.size()) {
-
+                for(Map.Entry<String, String> name: NameMapping.names.entrySet()) {
+                    logger.error(name.getValue() + ":" + (results.get(name.getKey()) == null ? "null" : results.get(name.getKey()).toString()));
+                }
                 throw new InstrumentParserException("mismatch defendantLawyer and defendantLawyerOffice:" + defendantLawyerResult.toString() + defendantLawyerOfficeResult.toString());
             }
         }else if (defendantLawyerOfficeResult == null && defendantLawyerResult != null) {
