@@ -39,7 +39,7 @@ public class MainApp {
 
         parseFiles(rule, "C:\\Users\\lugan\\git\\law\\sourcefile");
         //parseFilesSync(rule, "/users/luganlin/Documents/download");
-        //parseFile(rule, "C:\\Users\\lugan\\git\\law\\sourcefile\\f54f261f-f8f9-4fc6-adbd-b651f9858d02.html");
+        //parseFile(rule, "C:\\Users\\lugan\\git\\law\\sourcefile\\e68353f8-f8c1-4e29-99b4-a762cb858dc5.html");
 
     }
 
@@ -95,7 +95,7 @@ public class MainApp {
                         if (!e.getErrorCode().equals(InstrumentParserException.ErrorCode.UNSUPPORTED_TYPE)) {
                             logger.error(String.join("\n", statements) + "\n" + file.getName(), e);
                             total.incrementAndGet();
-                            unsupported.incrementAndGet();
+                            error.incrementAndGet();
                             /*System.out.println("*********** validation error ****************");
                             System.out.println("-- origin content --");
                             //System.out.println("file name: " + file.getName());
@@ -106,7 +106,7 @@ public class MainApp {
                             //System.out.println("*********** end validation error ************");
                         }else {
                             total.incrementAndGet();
-                            error.incrementAndGet();
+                            unsupported.incrementAndGet();
                         }
 
                     } catch (Exception e) {
