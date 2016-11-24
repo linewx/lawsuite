@@ -10,6 +10,8 @@ import com.linewx.law.instrument.utils.ReasonUtil;
 import com.linewx.law.parser.NameMapping;
 import com.linewx.law.parser.ParseContext;
 import org.apache.commons.lang3.text.WordUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import java.util.Map;
  * Created by luganlin on 11/22/16.
  */
 public class Instrument {
+    private static Logger logger = LoggerFactory.getLogger(Instrument.class);
     private String accuser;  //原告
     private String accuserAlias; //原告别名
     private String accuserLegalEntity;  //原告法人代表
@@ -546,17 +549,28 @@ public class Instrument {
             }else {
                 //无原告和被告信息
                 List<String> costUsers = context.getResults().get("costUser");
-                if (costUsers != null) {
+                List<String> costOnUsers = context.getResults().get("costOnUser");
+
+                if (costUsers != null && costOnUsers!=null) {
                     //有负担费用人信息
                     Boolean found = false;
 
                     for (String oneAccuser : context.getResults().get("accuser")) {
                         if (costUsers.get(0).contains(oneAccuser)) {
                             //原告人承担
-                            costOnAccuser = totalCost;
-                            costOnDefendant = 0L;
+                            if (costOnUsers.get(0).isEmpty()) {
+                                costOnAccuser = totalCost;
+                                costOnDefendant = 0L;
+
+                            }else {
+                                costOnAccuser = AmountParserUtil.ParseLong(costOnUsers.get(0));
+                                costOnDefendant = totalCost - costOnAccuser;
+                            }
+
                             found = true;
                             break;
+
+
                         }
                     }
 
@@ -564,8 +578,15 @@ public class Instrument {
                         for (String oneDefendant : context.getResults().get("defendant")) {
                             if (costUsers.get(0).contains(oneDefendant) || oneDefendant.contains(costUsers.get(0))) {
                                 //被告人承担
-                                costOnDefendant = totalCost;
-                                costOnAccuser = 0L;
+                                if (costOnUsers.get(0).isEmpty()) {
+                                    costOnDefendant = totalCost;
+                                    costOnAccuser = 0L;
+
+                                }else {
+                                    costOnDefendant = AmountParserUtil.ParseLong(costOnUsers.get(0));
+                                    costOnAccuser = totalCost - costOnDefendant;
+                                }
+
                                 found = true;
                                 break;
                             }
@@ -608,6 +629,9 @@ public class Instrument {
             }
         }
         if (costOnAccuser == null || costOnDefendant == null) {
+            for(Map.Entry<String, String> name: NameMapping.names.entrySet()) {
+                logger.error(name.getValue() + ":" + (context.getResults().get(name.getKey()) == null ? "null" : context.getResults().get(name.getKey()).toString()));
+            }
             throw new InstrumentParserException("can not identify the cost on accuser on defendant");
         }
         accuserWinPer = (totalCost - costOnAccuser) * 100/totalCost;

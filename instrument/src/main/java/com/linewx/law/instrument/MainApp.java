@@ -6,6 +6,7 @@ import com.linewx.law.instrument.parser.InstrumentParser;
 import com.linewx.law.parser.ParseContext;
 import com.linewx.law.parser.ParseStateMachine;
 import com.linewx.law.parser.json.RuleJson;
+import org.apache.commons.cli.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -34,10 +35,61 @@ public class MainApp {
     private static AtomicLong unsupported = new AtomicLong(0L);
 
     public static void main(String argv[]) throws Exception {
-        RuleJson rule = new MainApp().readRule();
+        Options options = new Options();
+
+        Option fileOption = new Option("f" , true, "single file to parse");
+        fileOption.setRequired(false);
+        options.addOption(fileOption);
+
+        Option folderOption = new Option("d", true, "folder to parse");
+        folderOption.setRequired(false);
+        options.addOption(folderOption);
+
+        Option ruleOption = new Option("r",  true, "parser rule location");
+        ruleOption.setRequired(true);
+        options.addOption(ruleOption);
+
+        CommandLineParser commandLineParser = new BasicParser();
+        HelpFormatter helpFormatter = new HelpFormatter();
+        CommandLine commandLine;
+
+        try {
+            commandLine = commandLineParser.parse(options, argv);
+        }catch(ParseException e) {
+            System.out.println(e.getMessage());
+            helpFormatter.printHelp("MainApp", options);
+
+            System.exit(1);
+            return;
+        }
+
+        String ruleLocation = commandLine.getOptionValue("r");
+        RuleJson rule = loadRule(ruleLocation);
+
+        String fileName = commandLine.getOptionValue("f");
+        if (fileName != null) {
+            parseFile(rule, fileName);
+            return;
+        }
+
+        String folderName = commandLine.getOptionValue("d");
+        if (folderName != null) {
+            parseFiles(rule, folderName);
+            return;
+        }
+
+
+
+
+
+
+
+
+
+        //RuleJson rule = new MainApp().readRule();
         //testRe();
 
-        parseFiles(rule, "C:\\Users\\lugan\\git\\law\\sourcefile");
+        //parseFiles(rule, "/users/luganlin/Documents/download");
         //parseFilesSync(rule, "/users/luganlin/Documents/download");
         //parseFile(rule, "C:\\Users\\lugan\\git\\law\\sourcefile\\41a2bf88-5668-47ca-abfb-3796814ed3e9.html");
 
@@ -93,9 +145,13 @@ public class MainApp {
 
                     } catch (InstrumentParserException e) {
                         if (!e.getErrorCode().equals(InstrumentParserException.ErrorCode.UNSUPPORTED_TYPE)) {
-                            logger.error(String.join("\n", statements) + "\n" + file.getName(), e);
+                            if (!e.getMessage().equals("不明案由")) {
+                                logger.error(String.join("\n", statements) + "\n" + file.getName(), e);
+                                error.incrementAndGet();
+                            }
+
                             total.incrementAndGet();
-                            error.incrementAndGet();
+
                             /*System.out.println("*********** validation error ****************");
                             System.out.println("-- origin content --");
                             //System.out.println("file name: " + file.getName());
@@ -138,6 +194,13 @@ public class MainApp {
         Gson gson = new Gson();
         BufferedReader bufferedReader = new BufferedReader(
                 new InputStreamReader(is));
+        RuleJson rule = gson.fromJson(bufferedReader, RuleJson.class);
+        return rule;
+    }
+
+    public static RuleJson loadRule(String ruleLocation) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(ruleLocation));
+        Gson gson = new Gson();
         RuleJson rule = gson.fromJson(bufferedReader, RuleJson.class);
         return rule;
     }

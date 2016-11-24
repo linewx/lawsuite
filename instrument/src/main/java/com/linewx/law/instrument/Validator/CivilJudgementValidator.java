@@ -2,7 +2,11 @@ package com.linewx.law.instrument.Validator;
 
 import com.linewx.law.instrument.InstrumentTypeEnum;
 import com.linewx.law.instrument.exception.InstrumentParserException;
+import com.linewx.law.parser.NameMapping;
 import com.linewx.law.parser.ParseContext;
+import com.sun.corba.se.spi.orbutil.fsm.Guard;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +15,8 @@ import java.util.Map;
  * Created by luganlin on 11/22/16.
  */
 public class CivilJudgementValidator implements Validator{
+    public static final Logger logger = LoggerFactory.getLogger(CivilJudgementValidator.class);
+
     @Override
     public String getType() {
         return InstrumentTypeEnum.CIVIL_JUDGMENT.getInstrumentType();
@@ -121,12 +127,20 @@ public class CivilJudgementValidator implements Validator{
         if (required) {
             //validate required
             if (oneResult == null || oneResult.isEmpty()) {
+                for(Map.Entry<String, String> name: NameMapping.names.entrySet()) {
+                    logger.error(name.getValue() + ":" + (results.get(name.getKey()) == null ? "null" : results.get(name.getKey()).toString()));
+                }
                 throw new InstrumentParserException("no " + fieldName + " found", InstrumentParserException.ErrorCode.VALIDATION);
+
+
             }
         }
 
         if (maxNumber != null) {
             if(oneResult.size() > maxNumber) {
+                for(Map.Entry<String, String> name: NameMapping.names.entrySet()) {
+                    logger.error(name.getValue() + ":" + (results.get(name.getKey()) == null ? "null" : results.get(name.getKey()).toString()));
+                }
                 throw new InstrumentParserException(maxNumber + " or more than "+ fieldName +" have been found: " + oneResult.toString(), InstrumentParserException.ErrorCode.VALIDATION);
             }
         }
