@@ -20,6 +20,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,17 +29,17 @@ import java.util.regex.Pattern;
  */
 public class MainApp {
     private static Logger logger = LoggerFactory.getLogger(MainApp.class);
+    private static AtomicLong total = new AtomicLong(0L);
+    private static AtomicLong error = new AtomicLong(0L);
+    private static AtomicLong unsupported = new AtomicLong(0L);
 
     public static void main(String argv[]) throws Exception {
-       /* System.out.println(testRe());
-        return;*/
-
-        final RuleJson rule = new MainApp().readRule();
+        RuleJson rule = new MainApp().readRule();
         //testRe();
 
-        //parseFiles(rule, "/users/luganlin/Documents/download");
+        //parseFiles(rule, "C:\\Users\\lugan\\git\\law\\sourcefile");
         //parseFilesSync(rule, "/users/luganlin/Documents/download");
-        parseFile(rule, "/users/luganlin/Documents/download/f0e2f7e8-a627-405e-a55e-af17e4ee14bf.html");
+        parseFile(rule, "C:\\Users\\lugan\\git\\law\\sourcefile\\fb4ef6d9-5717-4e0b-8b7f-73b1d69386b9.html");
 
     }
 
@@ -71,6 +72,7 @@ public class MainApp {
 
 
     public static void parseFiles(RuleJson rule, String folder) throws Exception {
+
         ExecutorService executor = Executors.newFixedThreadPool(8);
         File dir = new File(folder);
 
@@ -93,25 +95,32 @@ public class MainApp {
                         }
 
                         InstrumentParser parser = new InstrumentParser(rule, InstrumentTypeEnum.CIVIL_JUDGMENT);
-                        Instrument instrument = parser.parse(statements);
+                        parser.parse(statements);
+                        total.incrementAndGet();
 
                     } catch (InstrumentParserException e) {
                         if (!e.getErrorCode().equals(InstrumentParserException.ErrorCode.UNSUPPORTED_TYPE)) {
-                            /*********** exception error ****************/
-                            System.out.println("*********** validation error ****************");
+                            logger.error(String.join("\n", statements) + "\n" + file.getName(), e);
+                            total.incrementAndGet();
+                            unsupported.incrementAndGet();
+                            /*System.out.println("*********** validation error ****************");
                             System.out.println("-- origin content --");
                             //System.out.println("file name: " + file.getName());
                             System.out.println(String.join("\n", statements));
                             System.out.println("-- error message --");
                             System.out.println("file name:" + file.getName());
-                            System.out.println(e.getMessage());
-                            System.out.println("*********** end validation error ************");
+                            System.out.println(e.getMessage());*/
+                            //System.out.println("*********** end validation error ************");
+                        }else {
+                            total.incrementAndGet();
+                            error.incrementAndGet();
                         }
 
                     } catch (Exception e) {
                         e.printStackTrace();
+                        total.incrementAndGet();
+                        error.incrementAndGet();
                     }
-
                     return true;
                 }
             });
@@ -123,7 +132,7 @@ public class MainApp {
             future.get();
         }
 
-
+        System.out.println("total:" + total + "," + "unsupport: " + unsupported + "," + "error:" + error);
         long endTime = System.currentTimeMillis();
         executor.shutdown();
     }
@@ -189,7 +198,7 @@ public class MainApp {
             System.out.println(testMatcher.group(1));
         }
 
-        Pattern amountPattern = Pattern.compile("^案件受理费.*原告.*?负担(\\d*)");
+        Pattern amountPattern = Pattern.compile("^(?:案件|本案)(?:案件)?(?:诉讼费|受理费)(?:用)?(\\d*)");
         Matcher amountMatcher = amountPattern.matcher("案件受理费1264950元，原告资产公司负担123123元，由被告化工公司负担632475元，");
         if (amountMatcher.find()) {
             System.out.println(amountMatcher.group(1));

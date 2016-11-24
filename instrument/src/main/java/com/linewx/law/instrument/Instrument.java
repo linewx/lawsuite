@@ -21,10 +21,12 @@ import java.util.Map;
  */
 public class Instrument {
     private String accuser;  //原告
+    private String accuserAlias; //原告别名
     private String accuserLegalEntity;  //原告法人代表
     private String accuserLawyer;  //原告律师
     private String accuserLawyerOffice;  //原告律师的律师事务所
     private String defendant;  //被告
+    private String defendantAlias; //被告别名
     private String defendantLegalEntity;  //被告法人代表
     private String defendantLawyer;  //被告律师
     private String defendantLawyerOffice;  //被告律师的律师事务所
@@ -69,6 +71,8 @@ public class Instrument {
     public void setAccuser(String accuser) {
         this.accuser = accuser;
     }
+
+
 
     public String getAccuserLegalEntity() {
         return accuserLegalEntity;
@@ -358,6 +362,11 @@ public class Instrument {
         //set accuser:原告
         accuser = String.join("|", results.get("accuser"));
 
+        //set accuser alias:原告别称
+        if (results.get("accuserAlias") != null) {
+            accuserAlias = String.join("|", results.get("accuserAlias"));
+        }
+
         //set accuserLegalEntity:原告法人代表
         List<String> accuserLegalEntityResult = results.get("accuserLegalEntity");
         if (accuserLegalEntityResult != null) {
@@ -380,6 +389,11 @@ public class Instrument {
 
         //set defendant:被告
         defendant = String.join("|", results.get("defendant"));
+
+        //set accuser alias:原告别称
+        if (results.get("defendantAlias") != null) {
+            defendantAlias = String.join("|", results.get("defendantAlias"));
+        }
 
         //set defendantLegalEntity:被告法人代表
         List<String> defendantLegalEntityResult = results.get("defendantLegalEntity");
@@ -534,22 +548,61 @@ public class Instrument {
                 List<String> costUsers = context.getResults().get("costUser");
                 if (costUsers != null) {
                     //有负担费用人信息
+                    Boolean found = false;
+
                     for (String oneAccuser : context.getResults().get("accuser")) {
                         if (costUsers.get(0).contains(oneAccuser)) {
                             //原告人承担
                             costOnAccuser = totalCost;
                             costOnDefendant = 0L;
+                            found = true;
                             break;
                         }
                     }
 
-                    for (String oneDefendant : context.getResults().get("defendant")) {
-                        if (costUsers.get(0).contains(oneDefendant)) {
-                            //被告人承担
-                            costOnDefendant = totalCost;
-                            costOnAccuser = 0L;
+                    if(!found) {
+                        for (String oneDefendant : context.getResults().get("defendant")) {
+                            if (costUsers.get(0).contains(oneDefendant) || oneDefendant.contains(costUsers.get(0))) {
+                                //被告人承担
+                                costOnDefendant = totalCost;
+                                costOnAccuser = 0L;
+                                found = true;
+                                break;
+                            }
                         }
                     }
+
+                    if(!found) {
+                        List<String> accuserAlias = context.getResults().get("accuserAlias");
+                        if (accuserAlias != null) {
+                            for (String oneAccuserAlias : accuserAlias) {
+                                if (costUsers.get(0).contains(oneAccuserAlias) || oneAccuserAlias.contains(costUsers.get(0))) {
+                                    //被告人承担
+                                    costOnDefendant = 0L;
+                                    costOnAccuser = totalCost;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if(!found) {
+                        List<String> defendantAlias = context.getResults().get("defendantAlias");
+                        if (defendantAlias != null) {
+                            for (String oneDefendantAlias : defendantAlias) {
+                                if (costUsers.get(0).contains(oneDefendantAlias) || oneDefendantAlias.contains(costUsers.get(0))) {
+                                    //被告人承担
+                                    costOnDefendant = totalCost;
+                                    costOnAccuser = 0L;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+
 
                 }
             }

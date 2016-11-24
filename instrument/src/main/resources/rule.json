@@ -86,6 +86,14 @@
 				{
 					"action": "setFieldWithReg",
 					"parameters": [
+						"accuserAlias",
+						"cur",
+						"以下简称([\u4e00-\u9fa5]*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
 						"accuserLegalEntity",
 						"cur",
 						"(?:法定代理人)([\u4e00-\u9fa5]*)"
@@ -119,6 +127,14 @@
 						"defendant",
 						"cur",
 						"^被告([\u4e00-\u9fa5]*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"defendantAlias",
+						"cur",
+						"以下简称([\u4e00-\u9fa5]*)"
 					]
 				},
 				{
@@ -173,7 +189,7 @@
 					"parameters": [
 						"cost",
 						"cur",
-						"^(?:案件|本案)(?:案件)(?:诉讼费|受理费)(?:用)(\\d*)"
+						"^(?:案件|本案)(?:案件)?(?:诉讼费|受理费)(?:用)?(\\d*)"
 					]
 				},
 				{
