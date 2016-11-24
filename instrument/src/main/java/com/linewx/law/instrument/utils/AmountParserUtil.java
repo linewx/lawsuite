@@ -11,7 +11,7 @@ public class AmountParserUtil {
     private static Pattern amountPattern;
     private static Map<Character, Character> numberMapping = new HashMap<>();
     static {
-        amountPattern = Pattern.compile("([\\d|，〇|一|二|三|四|五|六|七|八|九|十|百|千|万|亿]+)元");
+        amountPattern = Pattern.compile("([\\d|，|〇|一|二|三|四|五|六|七|八|九|十|百|千|万|亿]+)元");
         numberMapping.put('〇', '0');
         numberMapping.put('一', '1');
         numberMapping.put('二', '2');
