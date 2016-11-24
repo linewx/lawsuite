@@ -624,6 +624,9 @@ public class Instrument {
             if (accuserAmountLines == null) {
                 //todo: amount line can not be found
                 //log warning...
+                accuserAmountPer = 50L;
+                defendantAmountPer = 50L;
+                return;
             }else {
                 accuserAmount = AmountParserUtil.getMainAmountSum(String.join("", accuserAmountLines));
             }
@@ -642,6 +645,12 @@ public class Instrument {
         System.out.println("文件名称:" + context.getResults().get("filename"));
         System.out.println("error: " + error);
         System.out.println("############### end parse ##########");
+    }
+
+    public void printContext() {
+        for(Map.Entry<String,String> oneName: NameMapping.names.entrySet()) {
+            System.out.println(oneName.getValue() + context.getResults().get(oneName.getKey()));
+        }
     }
 
     public void printContent() {

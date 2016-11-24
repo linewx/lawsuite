@@ -15,6 +15,7 @@ public class ProcessorHandler {
         processors.put("eraseSpace", new EraseSpaceProcessor());
         processors.put("amount", new AmountProcessor());
         processors.put("date", new DateProcessor());
+        processors.put("double", new DoubleProcessor());
     }
 
     public static String execute(String processor, String source) {
