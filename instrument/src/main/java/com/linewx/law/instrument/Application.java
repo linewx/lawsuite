@@ -2,6 +2,8 @@ package com.linewx.law.instrument;
 
 import com.google.gson.Gson;
 import com.linewx.law.instrument.exception.InstrumentParserException;
+import com.linewx.law.instrument.model.Instrument;
+import com.linewx.law.instrument.model.InstrumentService;
 import com.linewx.law.instrument.parser.InstrumentParser;
 import com.linewx.law.parser.ParseContext;
 import com.linewx.law.parser.ParseStateMachine;
@@ -13,6 +15,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -37,6 +40,9 @@ public class Application implements CommandLineRunner{
     private static AtomicLong total = new AtomicLong(0L);
     private static AtomicLong error = new AtomicLong(0L);
     private static AtomicLong unsupported = new AtomicLong(0L);
+
+    @Autowired
+    InstrumentService instrumentService;
 
     public static void main(String args[]) throws Exception{
         SpringApplication.run(Application.class, args);
@@ -85,25 +91,9 @@ public class Application implements CommandLineRunner{
             parseFiles(rule, folderName);
             return;
         }
-
-
-
-
-
-
-
-
-
-        //RuleJson rule = new MainApp().readRule();
-        //testRe();
-
-        //parseFiles(rule, "/users/luganlin/Documents/download");
-        //parseFilesSync(rule, "/users/luganlin/Documents/download");
-        //parseFile(rule, "C:\\Users\\lugan\\git\\law\\sourcefile\\41a2bf88-5668-47ca-abfb-3796814ed3e9.html");
-
     }
 
-    public static void parseFile(RuleJson rule, String fileName) throws Exception {
+    public void parseFile(RuleJson rule, String fileName) throws Exception {
         File file = new File(fileName);
         List<String> statements = new ArrayList<>();
         try {
@@ -124,74 +114,29 @@ public class Application implements CommandLineRunner{
     }
 
 
-    public static void parseFiles(RuleJson rule, String folder) throws Exception {
+    public void parseFiles(RuleJson rule, String folder) throws Exception {
 
         ExecutorService executor = Executors.newFixedThreadPool(8);
         File dir = new File(folder);
 
         List<Future> futures = new ArrayList<>();
+        Long startTime = System.currentTimeMillis();
         for (File file : dir.listFiles()) {
-            Future<Boolean> future = executor.submit(new Callable<Boolean>() {
-                @Override
-                public Boolean call() {
-                    ParseContext context = new ParseContext();
-                    List<String> statements = new ArrayList<>();
-                    try {
-                        Document doc = Jsoup.parse(file, "GBK");
-                        Element element = doc.getElementById("DivContent");
-                        Elements elements = element.children();
-
-
-                        context.addResult("filename", file.getName());
-                        for (Element oneElement : elements) {
-                            statements.add(oneElement.ownText());
-                        }
-
-                        InstrumentParser parser = new InstrumentParser(rule, InstrumentTypeEnum.CIVIL_JUDGMENT);
-                        parser.parse(statements);
-                        total.incrementAndGet();
-
-                    } catch (InstrumentParserException e) {
-                        if (!e.getErrorCode().equals(InstrumentParserException.ErrorCode.UNSUPPORTED_TYPE)) {
-                            if (!e.getMessage().equals("不明案由")) {
-                                logger.error(String.join("\n", statements) + "\n" + file.getName(), e);
-                                error.incrementAndGet();
-                            }
-
-                            total.incrementAndGet();
-
-                            /*System.out.println("*********** validation error ****************");
-                            System.out.println("-- origin content --");
-                            //System.out.println("file name: " + file.getName());
-                            System.out.println(String.join("\n", statements));
-                            System.out.println("-- error message --");
-                            System.out.println("file name:" + file.getName());
-                            System.out.println(e.getMessage());*/
-                            //System.out.println("*********** end validation error ************");
-                        }else {
-                            total.incrementAndGet();
-                            unsupported.incrementAndGet();
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        total.incrementAndGet();
-                        error.incrementAndGet();
-                    }
-                    return true;
-                }
-            });
-
+            Future<Boolean> future = executor.submit(new InstrumentFileParseTask(rule, file, instrumentService));
             futures.add(future);
         }
 
         for (Future future : futures) {
+
             future.get();
         }
 
-        System.out.println("total:" + total + "," + "unsupport: " + unsupported + "," + "error:" + error);
-        System.out.println("民事判决书识别率:" + (total.longValue()-unsupported.longValue()-error.longValue())*100/(total.longValue()-unsupported.longValue()) + "%");
-        long endTime = System.currentTimeMillis();
+        Long endTime = System.currentTimeMillis();
+
+        //System.out.println("total:" + total + "," + "unsupport: " + unsupported + "," + "error:" + error);
+        //System.out.println("民事判决书识别率:" + (total.longValue()-unsupported.longValue()-error.longValue())*100/(total.longValue()-unsupported.longValue()) + "%");
+        //long endTime = System.currentTimeMillis();
+        logger.info("729 files cost: " + (endTime - startTime) / 1000);
         executor.shutdown();
     }
 
@@ -213,35 +158,7 @@ public class Application implements CommandLineRunner{
         return rule;
     }
 
-    /*public static void loadReason() throws IOException {
-        Map<String, String> reasons = new HashMap<>();
-        Map<String, String> reasonIndex = new HashMap<>();
-        Map<String, String> secondaryIndex = new HashMap<>();
-        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-        InputStream is = classloader.getResourceAsStream("reason.csv");
-        Gson gson = new Gson();
-        BufferedReader bufferedReader = new BufferedReader(
-                new InputStreamReader(is));
-        String strLine;
-        while ((strLine = bufferedReader.readLine()) != null)   {
-            // Print the content on the console
-            String[] oneReason = strLine.split(",");
-            String number = oneReason[0].trim();
-            String name = oneReason[1].trim();
 
-            reasons.put(number, name);
-            reasonIndex.put(name, number);
-
-            for(int i=0; i<name.length(); i++) {
-                if (name.charAt(i) == '、') {
-                    secondaryIndex.put(name.substring(i+1), number);
-                }
-            }
-        }
-
-
-    }
-*/
     static void testRe() {
         /*Pattern pattern = Pattern.compile(".*(?<!日|二)$");
 

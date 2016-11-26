@@ -12,6 +12,7 @@ import com.linewx.law.parser.json.RuleJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -150,14 +151,14 @@ public class InstrumentParser {
         List<String> accuserLawyerResults = results.get("accuserLawyer");
         if (accuserLawyerResults != null && !accuserLawyerResults.isEmpty()) {
             String accuserLawyer = String.join("|", accuserLawyerResults);
-            instrument.setAccuserLegalEntity(accuserLawyer);
+            instrument.setAccuserLawyer(accuserLawyer);
         }
 
         //validate accuserLawyerOffice:原告律师的律师事务所
         List<String> accuserLawyerOfficeResults = results.get("accuserLawyerOffice");
         if (accuserLawyerOfficeResults != null && !accuserLawyerOfficeResults.isEmpty()) {
             String accuserLawyerOffice = String.join("|", accuserLawyerOfficeResults);
-            instrument.setAccuserLegalEntity(accuserLawyerOffice);
+            instrument.setAccuserLawyerOffice(accuserLawyerOffice);
         }
 
         //validate lawyer and lawyer office
@@ -188,14 +189,14 @@ public class InstrumentParser {
         List<String> defendantLawyerResults = results.get("defendantLawyer");
         if (defendantLawyerResults != null && !defendantLawyerResults.isEmpty()) {
             String defendantLawyer = String.join("|", defendantLawyerResults);
-            instrument.setDefendantLegalEntity(defendantLawyer);
+            instrument.setDefendantLawyer(defendantLawyer);
         }
 
         //validate defendantLawyerOffice:被告律师的律师事务所
         List<String> defendantLawyerOfficeResults = results.get("defendantLawyerOffice");
         if (defendantLawyerOfficeResults != null && !defendantLawyerOfficeResults.isEmpty()) {
             String defendantLawyerOffice = String.join("|", defendantLawyerOfficeResults);
-            instrument.setDefendantLegalEntity(defendantLawyerOffice);
+            instrument.setDefendantLawyerOffice(defendantLawyerOffice);
         }
 
         //validate lawyer and lawyer office
@@ -542,7 +543,7 @@ public class InstrumentParser {
                 Long accuserAmount = AmountParserUtil.getMainAmountSum(String.join("", accuserAmountLines));
 
                 if (accuserAmount > amount) {
-                    throw new InstrumentParserException("accuser amount is more than total amount");
+                    throw new InstrumentParserException(String.format("accuser amount is larger than total amount: accuser amount %s, total amount %s", accuserAmount.toString(), amount.toString()));
                 }else {
                     return accuserAmount;
                 }
