@@ -19,13 +19,13 @@ import java.util.Map;
 /**
  * Created by lugan on 11/23/2016.
  */
-public class CivilJudgementInstrumentParser implements InstrumentParser{
+public class CivilJudgementInstrumentParser implements InstrumentParser {
     private static Logger logger = LoggerFactory.getLogger(CivilJudgementInstrumentParser.class);
 
     private ParseStateMachine parseStateMachine;
     private RuleJson rule;
 
-    private static class CostInformation{
+    private static class CostInformation {
         Long costOnAccuser;
         Long costOnDefendant;
 
@@ -165,9 +165,9 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
             if (accuserLawyerOfficeResults.size() != accuserLawyerResults.size()) {
                 throw new InstrumentParserException("mismatch accuserLawyer and accuserLawyerOffice");
             }
-        }else if (accuserLawyerResults == null && accuserLawyerOfficeResults == null) {
+        } else if (accuserLawyerResults == null && accuserLawyerOfficeResults == null) {
             //both are null
-        }else {
+        } else {
             throw new InstrumentParserException("mismatch accuserLawyer and accuserLawyerOffice");
         }
 
@@ -203,9 +203,9 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
             if (defendantLawyerOfficeResults.size() != defendantLawyerResults.size()) {
                 throw new InstrumentParserException("mismatch defendantLawyer and defendantLawyerOffice");
             }
-        }else if (defendantLawyerResults == null && defendantLawyerOfficeResults == null) {
+        } else if (defendantLawyerResults == null && defendantLawyerOfficeResults == null) {
             //both are null
-        }else {
+        } else {
             throw new InstrumentParserException("mismatch defendantLawyer and defendantLawyerOffice");
         }
 
@@ -219,7 +219,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
         //validate secondaryJudge2:非主审法官2
         List<String> judgeResults = results.get("judge");
         validateField(judgeResults, "judge", true, 3);
-        for(int i=0; i<judgeResults.size(); i++) {
+        for (int i = 0; i < judgeResults.size(); i++) {
             if (i == 0) {
                 instrument.setMainJudge(judgeResults.get(0));
             }
@@ -228,7 +228,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
                 instrument.setSecondaryJudge(judgeResults.get(1));
             }
 
-            if (i== 2) {
+            if (i == 2) {
                 instrument.setSecondaryJudge2(judgeResults.get(2));
             }
         }
@@ -263,7 +263,6 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
         validateField(caseTypeResults, "caseType", true, 1);
         String caseType = caseTypeResults.get(0);
         instrument.setCaseType(caseType);
-
 
 
         //validate suiteDate:立案年份
@@ -325,7 +324,6 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
         instrument.setDefendantWinPer(costPerInformation.getDefendantWinPer());
 
 
-
         //validate ignoreAmount:诉请金额忽略标志
         Boolean ignoreAmount = !AmountUtil.isCharge(ReasonUtil.getReasonNumber(reason), cost);
         instrument.setIgnoreAmount(ignoreAmount);
@@ -351,7 +349,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
         //validate firstConciliation:一审调解结案
 
 
-        return  instrument;
+        return instrument;
     }
 
     private void validateField(List<String> fieldValues, String fieldName, Boolean required, Integer maxNumber) {
@@ -365,8 +363,8 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
         }
 
         if (maxNumber != null) {
-            if(fieldValues != null && fieldValues.size() > maxNumber) {
-                throw new InstrumentParserException(maxNumber + " or more than "+ fieldName +" have been found: " + fieldValues.toString(), InstrumentParserException.ErrorCode.FILED_EXCEED);
+            if (fieldValues != null && fieldValues.size() > maxNumber) {
+                throw new InstrumentParserException(maxNumber + " or more than " + fieldName + " have been found: " + fieldValues.toString(), InstrumentParserException.ErrorCode.FILED_EXCEED);
             }
         }
     }
@@ -386,7 +384,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
         Long costOnDefendant = null;
 
         if (discountHalf != null && discountHalf) {
-            totalCost = totalCost/2;
+            totalCost = totalCost / 2;
         }
 
         if (totalCost == 0) {
@@ -402,26 +400,26 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
                 //全部由原告承担
                 costOnAccuser = totalCost;
                 costOnDefendant = 0L;
-            }else {
+            } else {
                 //部分由原告承担
                 costOnAccuser = Long.parseLong(costsOnAccuser.get(0));
                 costOnDefendant = totalCost - costOnAccuser;
             }
-        }else {
+        } else {
             //无原告信息
             if (costsOnDefendant != null) {
                 //有被告信息
                 if (costsOnDefendant.get(0).isEmpty()) {
                     costOnDefendant = totalCost;
                     costOnAccuser = 0L;
-                }else {
+                } else {
                     costOnDefendant = Long.parseLong(costsOnDefendant.get(0));
                     costOnAccuser = totalCost - costOnDefendant;
                 }
-            }else {
+            } else {
                 //无原告和被告信息
 
-                if (costUsers != null && costOnUsers!=null) {
+                if (costUsers != null && costOnUsers != null) {
                     //有负担费用人信息
                     Boolean found = false;
 
@@ -432,7 +430,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
                                 costOnAccuser = totalCost;
                                 costOnDefendant = 0L;
 
-                            }else {
+                            } else {
                                 costOnAccuser = AmountParserUtil.ParseLong(costOnUsers.get(0));
                                 costOnDefendant = totalCost - costOnAccuser;
                             }
@@ -444,7 +442,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
                         }
                     }
 
-                    if(!found) {
+                    if (!found) {
                         for (String oneDefendant : defendantResults) {
                             if (costUsers.get(0).contains(oneDefendant) || oneDefendant.contains(costUsers.get(0))) {
                                 //被告人承担
@@ -452,7 +450,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
                                     costOnDefendant = totalCost;
                                     costOnAccuser = 0L;
 
-                                }else {
+                                } else {
                                     costOnDefendant = AmountParserUtil.ParseLong(costOnUsers.get(0));
                                     costOnAccuser = totalCost - costOnDefendant;
                                 }
@@ -463,7 +461,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
                         }
                     }
 
-                    if(!found) {
+                    if (!found) {
                         if (accuserAlias != null) {
                             for (String oneAccuserAlias : accuserAlias) {
                                 if (costUsers.get(0).contains(oneAccuserAlias) || oneAccuserAlias.contains(costUsers.get(0))) {
@@ -477,7 +475,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
                         }
                     }
 
-                    if(!found) {
+                    if (!found) {
                         if (defendantAlias != null) {
                             for (String oneDefendantAlias : defendantAlias) {
                                 if (costUsers.get(0).contains(oneDefendantAlias) || oneDefendantAlias.contains(costUsers.get(0))) {
@@ -490,7 +488,6 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
                             }
                         }
                     }
-
 
 
                 }
@@ -507,14 +504,14 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
     private CostPerInformation calculateCostPer(Long cost, Boolean discountHalf, Long costOnAccuser, Long costOnDefendant) {
         Long totalCost = cost;
         if (discountHalf) {
-            totalCost = totalCost/2;
+            totalCost = totalCost / 2;
         }
 
         if (cost.equals(0L)) {
             return new CostPerInformation(50L, 50L);
         }
 
-        Long costOnAccuserPer = costOnAccuser * 100/totalCost;
+        Long costOnAccuserPer = costOnAccuser * 100 / totalCost;
         Long costOnDefendantPer = 100 - costOnAccuser;
         return new CostPerInformation(costOnAccuserPer, costOnDefendantPer);
     }
@@ -522,8 +519,10 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
     private AmountPerInformation calculateAmountPer(Long amount, Long amountAccuser) {
         if (amount == 0) {
             return new AmountPerInformation(50L, 50L);
-        }else {
-            Long amountOnAccuserPer = amountAccuser * 100/amount;
+        } else if (amountAccuser > amount) {
+            return new AmountPerInformation(100L, 0L);
+        } else {
+            Long amountOnAccuserPer = amountAccuser * 100 / amount;
             Long amountOnDefedantPer = 100 - amountOnAccuserPer;
             return new AmountPerInformation(amountOnAccuserPer, amountOnDefedantPer);
         }
@@ -532,18 +531,19 @@ public class CivilJudgementInstrumentParser implements InstrumentParser{
     private Long calcuateAccuserAmount(Long amount, List<String> accuserAmountLines) {
         if (amount == 0) {
             return 0L;
-        }else {
+        } else {
             if (accuserAmountLines == null) {
                 //todo: amount line can not be found
                 //log warning...
                 throw new InstrumentParserException("accuser amount not found");
                 //return 0L;
-            }else {
+            } else {
                 Long accuserAmount = AmountParserUtil.getMainAmountSum(String.join("", accuserAmountLines));
 
                 if (accuserAmount > amount) {
-                    throw new InstrumentParserException(String.format("accuser amount is larger than total amount: accuser amount %s, total amount %s", accuserAmount.toString(), amount.toString()));
-                }else {
+                    return accuserAmount;
+                    //throw new InstrumentParserException(String.format("accuser amount is larger than total amount: accuser amount %s, total amount %s", accuserAmount.toString(), amount.toString()));
+                } else {
                     return accuserAmount;
                 }
 

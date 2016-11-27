@@ -15,17 +15,17 @@ public class Instrument implements java.io.Serializable {
 	@GeneratedValue
 	private Long id;
 
-	@Column(unique = true)
-	private String email;
-
 	private static Logger logger = LoggerFactory.getLogger(Instrument.class);
 
-	@Column
+
+	@Column(length = 1000)
 	private String accuser;  //原告
 	private String accuserAlias; //原告别名
 	private String accuserLegalEntity;  //原告法人代表
 	private String accuserLawyer;  //原告律师
 	private String accuserLawyerOffice;  //原告律师的律师事务所
+
+	@Column(length = 1000)
 	private String defendant;  //被告
 	private String defendantAlias; //被告别名
 	private String defendantLegalEntity;  //被告法人代表
@@ -65,9 +65,6 @@ public class Instrument implements java.io.Serializable {
 
 	}
 	
-	public Instrument(String email) {
-		this.email = email;
-	}
 
 	public Long getId() {
 		return id;
@@ -75,14 +72,6 @@ public class Instrument implements java.io.Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
 	}
 
 	public static Logger getLogger() {

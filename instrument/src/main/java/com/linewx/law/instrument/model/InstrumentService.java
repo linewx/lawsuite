@@ -17,8 +17,8 @@ public class InstrumentService {
 
 	@PostConstruct	
 	protected void initialize() {
-		save(new Instrument("user"));
-		save(new Instrument("admin"));
+		/*save(new Instrument("user"));
+		save(new Instrument("admin"));*/
 	}
 
 	@Transactional
