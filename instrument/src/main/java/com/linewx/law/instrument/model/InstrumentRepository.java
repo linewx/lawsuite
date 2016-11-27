@@ -5,5 +5,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InstrumentRepository extends JpaRepository<Instrument, Long> {
-	//Instrument findOneByEmail(String email);
 }

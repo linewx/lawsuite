@@ -4,8 +4,7 @@ import com.google.gson.Gson;
 import com.linewx.law.instrument.audit.AuditService;
 import com.linewx.law.instrument.json.InstrumentRuleJson;
 import com.linewx.law.instrument.model.InstrumentService;
-import com.linewx.law.instrument.parser.InstrumentRuleManager;
-import org.apache.commons.cli.*;
+import com.linewx.law.instrument.model.rawdata.RawdataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by luganlin on 11/22/16.
@@ -38,12 +36,16 @@ public class Application implements CommandLineRunner{
     @Autowired
     AuditService auditService;
 
+    @Autowired
+    RawdataService rawdataService;
+
     public static void main(String args[]) throws Exception{
         SpringApplication.run(Application.class, args);
     }
 
     public void run(String ...argv) throws Exception {
-        Options options = new Options();
+        rawdataService.getData();
+        /*Options options = new Options();
 
         Option fileOption = new Option("f" , true, "single file to parse");
         fileOption.setRequired(false);
@@ -85,7 +87,7 @@ public class Application implements CommandLineRunner{
         if (folderName != null) {
             parseFiles(folderName);
             return;
-        }
+        }*/
     }
 
     public void parseFile(String fileName) {

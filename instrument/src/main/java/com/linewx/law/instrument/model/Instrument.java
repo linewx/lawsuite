@@ -38,9 +38,12 @@ public class Instrument implements java.io.Serializable {
 	private String secondaryJudge;  //非主审法官
 	private String secondaryJudge2;  //非主审法官1
 	//private String secondaryJudge2;  //非主审法官2
+	@Column(name="startDate")
 	private String date;  //判决日期
 	private String clerk;  //书记员
 	private String reason;  //案由
+
+	@Column(name="suiteNumber")
 	private String number;  //案号
 	private String caseType;  //案件类型
 	private String instrumentType;  //文书类型
