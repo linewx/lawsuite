@@ -121,10 +121,13 @@ public class Application implements CommandLineRunner{
 
         List<Future> futures = new ArrayList<>();
         Long startTime = System.currentTimeMillis();
-        for (File file : dir.listFiles()) {
-            Future<Boolean> future = executor.submit(new InstrumentFileParseTask(rule, file, instrumentService));
-            futures.add(future);
+        for (int i= 0; i<10; i++) {
+            for (File file : dir.listFiles()) {
+                Future<Boolean> future = executor.submit(new InstrumentFileParseTask(rule, file, instrumentService));
+                futures.add(future);
+            }
         }
+
 
         for (Future future : futures) {
 
