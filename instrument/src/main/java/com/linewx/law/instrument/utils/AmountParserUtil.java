@@ -25,24 +25,6 @@ public class AmountParserUtil {
     }
 
 
-    public static void main(String []argv) {
-        Set<Long> numbers =  parseMainAmount("原告金额:[：, 一、被告戴兴勇应于本判决发生法律效三万元力之日起234，234元日内向原元告蒋继超给付工程款388206元；, 如果]");
-
-        List<Long> sortedNumbers = new ArrayList(numbers);
-        Collections.sort(sortedNumbers);
-        Collections.reverse(sortedNumbers);
-
-        List<Long> numberList = new ArrayList<>();
-        if (sortedNumbers.size() > 3) {
-            sortedNumbers.subList(0, 3);
-        }
-
-        System.out.println(sortedNumbers.stream().reduce(0L, Long::sum));
-
-
-    }
-
-
     public static Long getMainAmountSum(String amountText) {
         return sumMainAmount(parseMainAmount(amountText));
     }
