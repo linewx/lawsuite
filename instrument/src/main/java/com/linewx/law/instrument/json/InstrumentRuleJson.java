@@ -1,5 +1,6 @@
 package com.linewx.law.instrument.json;
 
+import com.linewx.law.parser.json.RuleJson;
 import com.linewx.law.parser.json.StateJson;
 import com.linewx.law.parser.json.TransitionJson;
 
@@ -58,4 +59,6 @@ public class InstrumentRuleJson {
     public void setLevel(String level) {
         this.level = level;
     }
+
+
 }

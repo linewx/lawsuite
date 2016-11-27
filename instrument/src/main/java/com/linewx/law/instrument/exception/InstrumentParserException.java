@@ -7,7 +7,10 @@ public class InstrumentParserException extends RuntimeException {
     public enum ErrorCode {
         GENERAL(1),
         UNSUPPORTED_TYPE(2),
-        VALIDATION(3);
+        FIELD_MISSING(3),
+        FILEDS_MISMATCH(4),
+        FILED_EXCEED(5),
+        INPROPER_REASON(6);
 
         private int errorCode;
 
@@ -19,6 +22,8 @@ public class InstrumentParserException extends RuntimeException {
             return this.errorCode;
         }
     }
+
+
 
     private ErrorCode errorCode;
 

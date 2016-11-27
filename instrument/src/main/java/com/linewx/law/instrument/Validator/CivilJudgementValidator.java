@@ -135,7 +135,7 @@ public class CivilJudgementValidator implements Validator{
                 for(Map.Entry<String, String> name: NameMapping.names.entrySet()) {
                     logger.error(name.getValue() + ":" + (results.get(name.getKey()) == null ? "null" : results.get(name.getKey()).toString()));
                 }
-                throw new InstrumentParserException("no " + fieldName + " found", InstrumentParserException.ErrorCode.VALIDATION);
+                throw new InstrumentParserException("no " + fieldName + " found", InstrumentParserException.ErrorCode.FIELD_MISSING);
 
 
             }
@@ -146,7 +146,7 @@ public class CivilJudgementValidator implements Validator{
                 for(Map.Entry<String, String> name: NameMapping.names.entrySet()) {
                     logger.error(name.getValue() + ":" + (results.get(name.getKey()) == null ? "null" : results.get(name.getKey()).toString()));
                 }
-                throw new InstrumentParserException(maxNumber + " or more than "+ fieldName +" have been found: " + oneResult.toString(), InstrumentParserException.ErrorCode.VALIDATION);
+                throw new InstrumentParserException(maxNumber + " or more than "+ fieldName +" have been found: " + oneResult.toString(), InstrumentParserException.ErrorCode.FILED_EXCEED);
             }
         }
     }

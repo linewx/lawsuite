@@ -1,5 +1,7 @@
 {
 	"firstState": "start",
+	"type": "民事判决书",
+	"level": "初",
 	"states": [
 		{
 			"id": "start"

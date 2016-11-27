@@ -1,11 +1,12 @@
 package com.linewx.law.instrument;
 
+import com.linewx.law.instrument.audit.AuditService;
 import com.linewx.law.instrument.exception.InstrumentParserException;
 import com.linewx.law.instrument.model.Instrument;
 import com.linewx.law.instrument.model.InstrumentService;
 import com.linewx.law.instrument.parser.InstrumentParser;
+import com.linewx.law.instrument.parser.ParserFactory;
 import com.linewx.law.parser.ParseContext;
-import com.linewx.law.parser.json.RuleJson;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,14 +21,14 @@ import java.util.concurrent.Callable;
  * Created by luganlin on 11/26/16.
  */
 public class InstrumentFileParseTask implements Callable<Boolean>{
-    private RuleJson ruleJson;
     private File file;
     private InstrumentService instrumentService;
+    private AuditService auditService;
 
-    public InstrumentFileParseTask(RuleJson ruleJson, File file, InstrumentService instrumentService) {
-        this.ruleJson = ruleJson;
+    public InstrumentFileParseTask(File file, InstrumentService instrumentService, AuditService auditService) {
         this.file = file;
         this.instrumentService = instrumentService;
+        this.auditService = auditService;
     }
 
     @Override
@@ -45,27 +46,29 @@ public class InstrumentFileParseTask implements Callable<Boolean>{
                 statements.add(oneElement.ownText());
             }
 
-            InstrumentParser parser = new InstrumentParser(ruleJson, InstrumentTypeEnum.CIVIL_JUDGMENT);
+
+            InstrumentParser parser = ParserFactory.getFromStatement(statements);
+            if (parser == null) {
+                throw new InstrumentParserException(InstrumentParserException.ErrorCode.UNSUPPORTED_TYPE);
+            }
+
             Instrument instrument = parser.parse(statements);
             instrumentService.save(instrument);
+            auditService.increase();
 
             //instrumentService.save(instrument);
 
         } catch (InstrumentParserException e) {
-            if (!e.getErrorCode().equals(InstrumentParserException.ErrorCode.UNSUPPORTED_TYPE)) {
-                if (!e.getMessage().equals("不明案由")) {
 
-                }
+            if (!e.getErrorCode().equals(InstrumentParserException.ErrorCode.UNSUPPORTED_TYPE)) {
+               auditService.increaseError();
+
             }else {
-                //
-                //total.incrementAndGet();
-                //unsupported.incrementAndGet();
+                auditService.increaseUnsupport();
             }
 
         } catch (Exception e) {
-            //e.printStackTrace();
-            //total.incrementAndGet();
-            //error.incrementAndGet();
+            auditService.increaseError();
         }
         return true;
     }
