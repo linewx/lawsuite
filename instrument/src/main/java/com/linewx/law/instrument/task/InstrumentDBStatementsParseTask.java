@@ -1,12 +1,14 @@
 package com.linewx.law.instrument.task;
 
 import com.linewx.law.instrument.audit.AuditService;
+import com.linewx.law.instrument.exception.InstrumentErrorCode;
 import com.linewx.law.instrument.exception.InstrumentParserException;
 import com.linewx.law.instrument.model.Instrument;
 import com.linewx.law.instrument.model.InstrumentService;
 import com.linewx.law.instrument.model.rawdata.Rawdata;
 import com.linewx.law.instrument.parser.InstrumentParser;
 import com.linewx.law.instrument.parser.ParserFactory;
+import com.linewx.law.instrument.parser.ParserResult;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,19 +39,19 @@ public class InstrumentDBStatementsParseTask implements Callable<Boolean>{
 
                 InstrumentParser parser = ParserFactory.getFromStatement(statements);
                 if (parser == null) {
-                    throw new InstrumentParserException(InstrumentParserException.ErrorCode.UNSUPPORTED_TYPE);
+                    throw new InstrumentParserException(InstrumentErrorCode.UNSUPPORTED_TYPE);
                 }
 
-                Instrument instrument = parser.parse(statements);
-                instrument.setRawdata(rawdata.getNr());
-                instrumentService.save(instrument);
+                ParserResult parserResult = parser.parse(statements);
+                //instrument.setRawdata(rawdata.getNr());
+                //instrumentService.save(instrument);
                 auditService.increase();
 
                 //instrumentService.save(instrument);
 
             } catch (InstrumentParserException e) {
 
-                if (!e.getInstrumentErrorCode().equals(InstrumentParserException.ErrorCode.UNSUPPORTED_TYPE)) {
+                if (!e.getInstrumentErrorCode().equals(InstrumentErrorCode.UNSUPPORTED_TYPE)) {
                     auditService.increaseError();
 
                 }else {

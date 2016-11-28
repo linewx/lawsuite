@@ -102,7 +102,7 @@ public class Application implements CommandLineRunner{
         List<Future> futures = new ArrayList<>();
 
         Long startTime = System.currentTimeMillis();
-        InstrumentReader instrumentReader = new InstrumentFilesReader("C:\\Users\\lugan\\Downloads\\lawsource1\\");
+        InstrumentReader instrumentReader = new InstrumentFilesReader("C:\\Users\\lugan\\Downloads\\lawsource2\\");
         for (int i=0; i<8; i++) {
             Future<Boolean> future = executor.submit(new InstrumentStatementsParseTask(
                     instrumentReader,
@@ -163,7 +163,7 @@ public class Application implements CommandLineRunner{
                 for (Rawdata rawdata: rawdatas) {
                     String id = ((Long)rawdata.getId()).toString();
                     try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                            new FileOutputStream("C:\\Users\\lugan\\Downloads\\lawsource\\" + id + ".txt"), "utf-8"))) {
+                            new FileOutputStream("C:\\Users\\lugan\\Downloads\\lawsource2\\" + id + ".txt"), "utf-8"))) {
                         writer.write(rawdata.getNr());
                     }
                 }

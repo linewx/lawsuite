@@ -321,6 +321,9 @@
 			"id": "abstract"
 		},
 		{
+			"id": "end"
+		},
+		{
 			"id": "attached",
 			"onEntryLine": [
 				{
@@ -466,6 +469,13 @@
 		},
 		{
 			"source": "clerk",
+			"target": "abstract",
+			"condition": {
+				"previous": ".*概要基本信息.*"
+			}
+		},
+		{
+			"source": "attached",
 			"target": "abstract",
 			"condition": {
 				"previous": ".*概要基本信息.*"
