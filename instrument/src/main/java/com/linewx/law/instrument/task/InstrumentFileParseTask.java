@@ -60,7 +60,7 @@ public class InstrumentFileParseTask implements Callable<Boolean>{
 
         } catch (InstrumentParserException e) {
 
-            if (!e.getErrorCode().equals(InstrumentParserException.ErrorCode.UNSUPPORTED_TYPE)) {
+            if (!e.getInstrumentErrorCode().equals(InstrumentParserException.ErrorCode.UNSUPPORTED_TYPE)) {
                auditService.increaseError();
 
             }else {

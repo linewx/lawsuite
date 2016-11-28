@@ -310,12 +310,15 @@
 					"parameters": [
 						"clerk",
 						"cur",
-						"^(?:书　记　员|书记员|书 记 员|见习书记员|代书记员|（代）书记员|代理书记员|代书　记员)(.*)",
+						"^(?:书　记　员|书记员|书 记 员|见习书记员|代书记员|（代）书记员|代理书记员|代书　记员)(.*)?(概要基本信息)?.*",
 						null,
 						"eraseSpace"
 					]
 				}
 			]
+		},
+		{
+			"id": "abstract"
 		},
 		{
 			"id": "attached",
@@ -460,6 +463,21 @@
 				"previous": null,
 				"current":  "^附.*"
 			}
+		},
+		{
+			"source": "clerk",
+			"target": "abstract",
+			"condition": {
+				"previous": ".*概要基本信息.*"
+			}
+		},
+		{
+			"source": "abstract",
+			"target": "end",
+			"condition": {
+				"previous": ".*当事人.*"
+			}
+
 		}
 	]
 }

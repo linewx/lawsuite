@@ -7,7 +7,10 @@ import com.linewx.law.instrument.model.InstrumentService;
 import com.linewx.law.instrument.model.rawdata.Rawdata;
 import com.linewx.law.instrument.model.rawdata.RawdataService;
 import com.linewx.law.instrument.parser.InstrumentRuleManager;
+import com.linewx.law.instrument.reader.InstrumentFilesReader;
+import com.linewx.law.instrument.reader.InstrumentReader;
 import com.linewx.law.instrument.task.InstrumentFileParseTask;
+import com.linewx.law.instrument.task.InstrumentDBStatementsParseTask;
 import com.linewx.law.instrument.task.InstrumentStatementsParseTask;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
@@ -91,8 +94,44 @@ public class Application implements CommandLineRunner{
             return;
         }
 
-        parseFromDB();
+        //parseFromDB();
         //parseFromDBSync();
+        //storeDataToFile();
+
+        ExecutorService executor = Executors.newFixedThreadPool(8);
+        List<Future> futures = new ArrayList<>();
+
+        Long startTime = System.currentTimeMillis();
+        InstrumentReader instrumentReader = new InstrumentFilesReader("C:\\Users\\lugan\\Downloads\\lawsource1\\");
+        for (int i=0; i<8; i++) {
+            Future<Boolean> future = executor.submit(new InstrumentStatementsParseTask(
+                    instrumentReader,
+                    instrumentService, auditService));
+            futures.add(future);
+        }
+
+        for (Future future : futures) {
+            future.get();
+        }
+
+        Long endTime = System.currentTimeMillis();
+
+        System.out.println((endTime - startTime) * 1000);
+        Map<String, Long> auditResult = auditService.getResult();
+
+        for (Map.Entry<String, Long> entry: auditResult.entrySet()) {
+            System.out.print(entry.getKey() + ":" + entry.getValue() + ".");
+        }
+
+        Long processed = auditService.getProcessed();
+        Long error = auditService.getError();
+        Long unsupported = auditService.getUnsupported();
+        Long regPer = (processed - error - unsupported) * 100 / (processed - unsupported);
+
+        System.out.print("识别率:" + regPer.toString() + "%.");
+        System.out.println();
+        executor.shutdown();
+
     }
 
     public void parseFile(String fileName) {
@@ -108,9 +147,35 @@ public class Application implements CommandLineRunner{
 
     public void parseFromDBSync() throws Exception {
         List<Rawdata> rawdatas = rawdataService.getData(1);
-        InstrumentStatementsParseTask instrumentStatementsParseTask =
-                new InstrumentStatementsParseTask(rawdatas, instrumentService, auditService);
+        InstrumentDBStatementsParseTask instrumentStatementsParseTask =
+                new InstrumentDBStatementsParseTask(rawdatas, instrumentService, auditService);
         instrumentStatementsParseTask.call();
+    }
+
+    public void storeDataToFile() throws Exception{
+        int currentPage = 0;
+        int process = 0;
+        while(true) {
+            List<Rawdata> rawdatas = rawdataService.getData(currentPage);
+            if (rawdatas == null || rawdatas.isEmpty()) {
+                break;
+            }else {
+                for (Rawdata rawdata: rawdatas) {
+                    String id = ((Long)rawdata.getId()).toString();
+                    try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                            new FileOutputStream("C:\\Users\\lugan\\Downloads\\lawsource\\" + id + ".txt"), "utf-8"))) {
+                        writer.write(rawdata.getNr());
+                    }
+                }
+            }
+
+            process = process + 100;
+            System.out.println("processed" + process);
+            currentPage = currentPage + 1;
+
+        }
+
+
     }
 
     public void parseFromDB() throws Exception{
@@ -123,7 +188,7 @@ public class Application implements CommandLineRunner{
             if (rawdatas == null || rawdatas.isEmpty()) {
                 break;
             }else {
-                Future<Boolean> future = executor.submit(new InstrumentStatementsParseTask(rawdatas, instrumentService, auditService));
+                Future<Boolean> future = executor.submit(new InstrumentDBStatementsParseTask(rawdatas, instrumentService, auditService));
                 futures.add(future);
             }
 

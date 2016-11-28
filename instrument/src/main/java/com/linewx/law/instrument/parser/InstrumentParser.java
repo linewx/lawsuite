@@ -10,5 +10,5 @@ import java.util.List;
  */
 public interface InstrumentParser {
 
-    Instrument parse(List<String> statements);
+    ParserResult parse(List<String> statements);
 }

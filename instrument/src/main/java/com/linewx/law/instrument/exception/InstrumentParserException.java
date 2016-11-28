@@ -4,60 +4,43 @@ package com.linewx.law.instrument.exception;
  * Created by lugan on 11/23/2016.
  */
 public class InstrumentParserException extends RuntimeException {
-    public enum ErrorCode {
-        GENERAL(1),
-        UNSUPPORTED_TYPE(2),
-        FIELD_MISSING(3),
-        FILEDS_MISMATCH(4),
-        FILED_EXCEED(5),
-        INPROPER_REASON(6);
-
-        private int errorCode;
-
-        ErrorCode(int errorCode) {
-            this.errorCode = errorCode;
-        }
-
-        int getErrorCode() {
-            return this.errorCode;
-        }
-    }
 
 
 
-    private ErrorCode errorCode;
+
+    private InstrumentErrorCode instrumentErrorCode;
 
     public InstrumentParserException() {
         super();
-        this.errorCode = ErrorCode.GENERAL;
+        this.instrumentErrorCode = com.linewx.law.instrument.exception.InstrumentErrorCode.GENERAL;
     }
 
     public InstrumentParserException(String message) {
         super(message);
-        this.errorCode = ErrorCode.GENERAL;
+        this.instrumentErrorCode = com.linewx.law.instrument.exception.InstrumentErrorCode.GENERAL;
     }
 
     public InstrumentParserException(String message, Throwable e) {
         super(message, e);
-        this.errorCode = ErrorCode.GENERAL;
+        this.instrumentErrorCode = com.linewx.law.instrument.exception.InstrumentErrorCode.GENERAL;
     }
 
-    public InstrumentParserException(ErrorCode errorCode) {
+    public InstrumentParserException(InstrumentErrorCode instrumentErrorCode) {
         super();
-        this.errorCode = errorCode;
+        this.instrumentErrorCode = instrumentErrorCode;
     }
 
-    public InstrumentParserException(String message, ErrorCode errorCode) {
+    public InstrumentParserException(String message, InstrumentErrorCode instrumentErrorCode) {
         super(message);
-        this.errorCode = errorCode;
+        this.instrumentErrorCode = instrumentErrorCode;
     }
 
-    public InstrumentParserException(String message, Throwable e, ErrorCode errorCode) {
+    public InstrumentParserException(String message, Throwable e, InstrumentErrorCode instrumentErrorCode) {
         super(message, e);
-        this.errorCode = errorCode;
+        this.instrumentErrorCode = instrumentErrorCode;
     }
 
-    public ErrorCode getErrorCode() {
-        return this.errorCode;
+    public InstrumentErrorCode getInstrumentErrorCode() {
+        return this.instrumentErrorCode;
     }
 }
