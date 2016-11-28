@@ -289,6 +289,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
         //validate cost:案件受理费
         List<String> costResults = results.get("cost");
         validateField(costResults, "cost", true, 1);
+
         Long cost = AmountParserUtil.ParseLong(costResults.get(0));
         instrument.setCost(cost);
 
@@ -334,6 +335,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
         //set amount:诉请金额
         Long amount = 0L;
         if (!ignoreAmount) {
+
             amount = AmountUtil.calculateAmount(cost);
         }
         instrument.setAmount(amount);

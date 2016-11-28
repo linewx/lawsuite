@@ -12,6 +12,7 @@ import com.linewx.law.parser.ParseContext;
 import com.linewx.law.parser.ParseStateMachine;
 import com.linewx.law.parser.json.RuleJson;
 import org.apache.commons.lang3.tuple.Pair;
+import org.omg.CORBA.UNKNOWN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -286,7 +287,11 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
         if (reason.isEmpty()) {
             List<String> reasonResults = results.get("reason");
             if (validateField(reasonResults, "reason", true, 1, errors)) {
-                reason = ReasonUtil.getReason(reasonResults.get(0));
+                try {
+                    reason = ReasonUtil.getReason(reasonResults.get(0));
+                }catch (Exception e) {
+                    errors.add(Pair.of(InstrumentErrorCode.UNKNOWN, "unknow reason"));
+                }
                 instrument.setReason(reason);
             }
         }
@@ -338,7 +343,12 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
         List<String> costResults = results.get("cost");
         Long cost = 0L;
         if (validateField(costResults, "cost", true, 1, errors)) {
-            cost = AmountParserUtil.ParseLong(costResults.get(0));
+            try {
+                cost = AmountParserUtil.ParseLong(costResults.get(0));
+            }catch (Exception e) {
+                errors.add(Pair.of(InstrumentErrorCode.UNKNOWN, "invalid cost"));
+            }
+
             instrument.setCost(cost);
         }
 
@@ -356,18 +366,26 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
 
         //validate costOnDefendant:被告负担受理费
         //validate costOnAccuser:原告负担受理费
-        CostInformation costInformation = calculateCost(cost,
-                discountHalf,
-                results.get("costOnAccuser"),
-                results.get("costOnDefendant"),
-                accuserResults,
-                defendantResults,
-                results.get("costUser"),
-                results.get("costOnUser"),
-                results.get("accuserAlias"),
-                results.get("defendantAlias"));
-        Long costOnAccuser = costInformation.getCostOnAccuser();
-        Long costOnDefendant = costInformation.getCostOnDefendant();
+        Long costOnAccuser = 50L;
+        Long costOnDefendant = 50L;
+        try {
+            CostInformation costInformation = calculateCost(cost,
+                    discountHalf,
+                    results.get("costOnAccuser"),
+                    results.get("costOnDefendant"),
+                    accuserResults,
+                    defendantResults,
+                    results.get("costUser"),
+                    results.get("costOnUser"),
+                    results.get("accuserAlias"),
+                    results.get("defendantAlias"));
+                costOnAccuser = costInformation.getCostOnAccuser();
+                costOnDefendant = costInformation.getCostOnDefendant();
+        }catch (Exception  e) {
+            errors.add(Pair.of(InstrumentErrorCode.UNKNOWN, e.getMessage()));
+        }
+
+
         instrument.setCostOnAccuser(costOnAccuser);
         instrument.setCostOnDefendant(costOnDefendant);
 
@@ -380,20 +398,35 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
 
 
         //validate ignoreAmount:诉请金额忽略标志
-        Boolean ignoreAmount = !AmountUtil.isCharge(ReasonUtil.getReasonNumber(reason), cost);
+        Boolean ignoreAmount = false;
+        try {
+            ignoreAmount = !AmountUtil.isCharge(ReasonUtil.getReasonNumber(reason), cost);
+        }catch (Exception e) {
+            errors.add(Pair.of(InstrumentErrorCode.UNKNOWN, e.getMessage()));
+        }
         instrument.setIgnoreAmount(ignoreAmount);
 
         //validate amount:诉请金额
         //set amount:诉请金额
         Long amount = 0L;
         if (!ignoreAmount) {
-            amount = AmountUtil.calculateAmount(cost);
+            try {
+                amount = AmountUtil.calculateAmount(cost);
+            }catch (Exception e) {
+                errors.add(Pair.of(InstrumentErrorCode.UNKNOWN, e.getMessage()));
+            }
         }
         instrument.setAmount(amount);
 
 
         //validate accuserAmount:原告主要诉请获支持金额
-        Long accuserAmount = calcuateAccuserAmount(amount, results.get("accuserAmountLines"));
+        Long accuserAmount = 0L;
+        try {
+            calcuateAccuserAmount(amount, results.get("accuserAmountLines"));
+        }catch (Exception e) {
+            errors.add(Pair.of(InstrumentErrorCode.UNKNOWN, e.getMessage()));
+        }
+
 
         //validate accuserAmountPer:原告主要诉请获支持率
         //validate defendantAmountPer:被告抗辩获支持率
