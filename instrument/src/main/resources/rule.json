@@ -318,7 +318,25 @@
 			]
 		},
 		{
-			"id": "abstract"
+			"id": "abstract",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"abstractReason",
+						"cur",
+						".*案由：(.*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"abstractDate",
+						"cur",
+						".*裁判日期：(.*)"
+					]
+				}
+			]
 		},
 		{
 			"id": "end"

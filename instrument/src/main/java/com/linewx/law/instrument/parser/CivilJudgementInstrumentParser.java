@@ -248,11 +248,21 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
 
 
         //validate date:判决日期
-        List<String> dateResults = results.get("date");
-        if (validateField(dateResults, "date", true, 1, errors)) {
-            String date = dateResults.get(0);
+        String date = "";
+        List<String> abstractDateResults = results.get("abstractDate");
+        if (validateField(abstractDateResults, "abstractDate", true, 1, errors)) {
+            date = abstractDateResults.get(0);
             instrument.setDate(date);
         }
+
+        if (date.isEmpty()) {
+            List<String> dateResults = results.get("date");
+            if (validateField(dateResults, "date", true, 1, errors)) {
+                date = dateResults.get(0);
+                instrument.setDate(date);
+            }
+        }
+
 
 
         //validate clerk:书记员
@@ -264,12 +274,23 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
 
         //validate reason:案由
         //todo: reason detail
-        List<String> reasonResults = results.get("reason");
+
         String reason = "";
-        if (validateField(reasonResults, "reason", true, 1, errors)) {
-            reason = ReasonUtil.getReason(reasonResults.get(0));
+
+        List<String> abstractReasonResults = results.get("abstractReason");
+        if (validateField(abstractReasonResults, "abstractReason", true, 1, errors)) {
+            reason = abstractReasonResults.get(0);
             instrument.setReason(reason);
         }
+
+        if (reason.isEmpty()) {
+            List<String> reasonResults = results.get("reason");
+            if (validateField(reasonResults, "reason", true, 1, errors)) {
+                reason = ReasonUtil.getReason(reasonResults.get(0));
+                instrument.setReason(reason);
+            }
+        }
+
 
 
         //validate number:案号
