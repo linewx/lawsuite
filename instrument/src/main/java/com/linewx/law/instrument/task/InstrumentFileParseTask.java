@@ -1,4 +1,4 @@
-package com.linewx.law.instrument;
+package com.linewx.law.instrument.task;
 
 import com.linewx.law.instrument.audit.AuditService;
 import com.linewx.law.instrument.exception.InstrumentParserException;

@@ -4,7 +4,12 @@ import com.google.gson.Gson;
 import com.linewx.law.instrument.audit.AuditService;
 import com.linewx.law.instrument.json.InstrumentRuleJson;
 import com.linewx.law.instrument.model.InstrumentService;
+import com.linewx.law.instrument.model.rawdata.Rawdata;
 import com.linewx.law.instrument.model.rawdata.RawdataService;
+import com.linewx.law.instrument.parser.InstrumentRuleManager;
+import com.linewx.law.instrument.task.InstrumentFileParseTask;
+import com.linewx.law.instrument.task.InstrumentStatementsParseTask;
+import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +17,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +46,8 @@ public class Application implements CommandLineRunner{
     }
 
     public void run(String ...argv) throws Exception {
-        rawdataService.getData();
-        /*Options options = new Options();
+
+        Options options = new Options();
 
         Option fileOption = new Option("f" , true, "single file to parse");
         fileOption.setRequired(false);
@@ -56,7 +58,7 @@ public class Application implements CommandLineRunner{
         options.addOption(folderOption);
 
         Option ruleOption = new Option("r",  true, "parser rule location");
-        ruleOption.setRequired(true);
+        ruleOption.setRequired(false);
         options.addOption(ruleOption);
 
         CommandLineParser commandLineParser = new BasicParser();
@@ -72,10 +74,10 @@ public class Application implements CommandLineRunner{
             System.exit(1);
             return;
         }
-
-        String ruleLocation = commandLine.getOptionValue("r");
+        loadRule();
+        /*String ruleLocation = commandLine.getOptionValue("r");
         InstrumentRuleJson rule = loadRule(ruleLocation);
-        InstrumentRuleManager.add(rule);
+        InstrumentRuleManager.add(rule);*/
 
         String fileName = commandLine.getOptionValue("f");
         if (fileName != null) {
@@ -87,7 +89,10 @@ public class Application implements CommandLineRunner{
         if (folderName != null) {
             parseFiles(folderName);
             return;
-        }*/
+        }
+
+        parseFromDB();
+        //parseFromDBSync();
     }
 
     public void parseFile(String fileName) {
@@ -101,6 +106,51 @@ public class Application implements CommandLineRunner{
 
     }
 
+    public void parseFromDBSync() throws Exception {
+        List<Rawdata> rawdatas = rawdataService.getData(1);
+        InstrumentStatementsParseTask instrumentStatementsParseTask =
+                new InstrumentStatementsParseTask(rawdatas, instrumentService, auditService);
+        instrumentStatementsParseTask.call();
+    }
+
+    public void parseFromDB() throws Exception{
+        ExecutorService executor = Executors.newFixedThreadPool(8);
+        List<Future> futures = new ArrayList<>();
+
+        int currentPage = 0;
+        while(true) {
+            List<Rawdata> rawdatas = rawdataService.getData(currentPage);
+            if (rawdatas == null || rawdatas.isEmpty()) {
+                break;
+            }else {
+                Future<Boolean> future = executor.submit(new InstrumentStatementsParseTask(rawdatas, instrumentService, auditService));
+                futures.add(future);
+            }
+
+            currentPage = currentPage + 1;
+
+        }
+
+        for (Future future : futures) {
+            future.get();
+        }
+
+        Map<String, Long> auditResult = auditService.getResult();
+
+        for (Map.Entry<String, Long> entry: auditResult.entrySet()) {
+            System.out.print(entry.getKey() + ":" + entry.getValue() + ".");
+        }
+
+        Long processed = auditService.getProcessed();
+        Long error = auditService.getError();
+        Long unsupported = auditService.getUnsupported();
+        Long regPer = (processed - error - unsupported) * 100 / (processed - unsupported);
+
+        System.out.print("识别率:" + regPer.toString() + "%.");
+        System.out.println();
+        executor.shutdown();
+
+    }
     public void parseFiles(String folder) throws Exception {
 
         ExecutorService executor = Executors.newFixedThreadPool(8);
@@ -138,6 +188,23 @@ public class Application implements CommandLineRunner{
         Gson gson = new Gson();
         InstrumentRuleJson rule = gson.fromJson(bufferedReader, InstrumentRuleJson.class);
         return rule;
+    }
+
+    public static void loadRule() {
+        try {
+            ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+            InputStream is = classloader.getResourceAsStream("rule.json");
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(is, "UTF8"));
+            Gson gson = new Gson();
+            InstrumentRuleJson rule = gson.fromJson(bufferedReader, InstrumentRuleJson.class);
+            InstrumentRuleManager.add(rule);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
 }

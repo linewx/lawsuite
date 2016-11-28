@@ -63,6 +63,8 @@ public class Instrument implements java.io.Serializable {
 	private Long defendantAmountPer;  //被告抗辩获支持率
 	private Boolean firstConciliation;  //一审调解结案
 
+	@Column(length = Integer.MAX_VALUE)
+	private String rawdata;
 
     public Instrument() {
 
@@ -371,5 +373,13 @@ public class Instrument implements java.io.Serializable {
 
 	public void setFirstConciliation(Boolean firstConciliation) {
 		this.firstConciliation = firstConciliation;
+	}
+
+	public String getRawdata() {
+		return rawdata;
+	}
+
+	public void setRawdata(String rawdata) {
+		this.rawdata = rawdata;
 	}
 }

@@ -11,10 +11,12 @@ import java.util.regex.Pattern;
  */
 
 public class ParserFactory {
+    private static Pattern courtPattern;
     private static Pattern typePattern;
     private static Pattern levelPattern;
 
     static {
+        courtPattern = Pattern.compile(".*法院$");
         typePattern = Pattern.compile("(.*书)$");
         levelPattern = Pattern.compile(".*([^字|第|\\d|-]).*号.*");
     }
@@ -48,24 +50,30 @@ public class ParserFactory {
         String type = null;
         String level = null;
         Boolean foundType = false;
+        Boolean foundCourt = false;
 
         for (String statement: statements) {
-            if (!foundType) {
-                Matcher typeMatcher = typePattern.matcher(statement);
-                if (typeMatcher.find()) {
-                    String originType = typeMatcher.group(1);
-                    type = originType.replaceAll("[　| ]", "");
-                    foundType = true;
+            if (!foundCourt) {
+                Matcher courtMatcher = courtPattern.matcher(statement);
+                if (courtMatcher.matches()) {
+                    foundCourt = true;
                 }
-            }else {
-                Matcher levelMatcher = levelPattern.matcher(statement);
-                if (levelMatcher.find()) {
-                    level = levelMatcher.group(1);
-
-                    return get(type, level);
+            }else{
+                if (!foundType) {
+                    Matcher typeMatcher = typePattern.matcher(statement);
+                    if (typeMatcher.find()) {
+                        String originType = typeMatcher.group(1);
+                        type = originType.replaceAll("[　| ]", "");
+                        foundType = true;
+                    }
+                }else {
+                    Matcher levelMatcher = levelPattern.matcher(statement);
+                    if (levelMatcher.find()) {
+                        level = levelMatcher.group(1);
+                        return get(type, level);
+                    }
                 }
             }
-
         }
 
         return null;

@@ -26,11 +26,9 @@ public class RawdataService {
 	}
 
 
-	public void getData() {
-		Page<Rawdata> rawdatas = rawdataRepository.findAll(new PageRequest(1, 100));
-		for (Rawdata rawdata: rawdatas) {
-			System.out.println(rawdata.getId());
-		}
+	public List<Rawdata> getData(int page) {
+		Page<Rawdata> rawdatas = rawdataRepository.findAll(new PageRequest(page, 100));
+		return rawdatas.getContent();
 	}
 
 }
