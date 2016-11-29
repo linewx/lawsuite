@@ -36,7 +36,6 @@ public class InstrumentDBStatementsParseTask implements Callable<Boolean>{
             List<String> statements = Arrays.asList(rawdata.getNr().split("\r\n"));
             //List<String> statements = new ArrayList<>();
             try {
-
                 InstrumentParser parser = ParserFactory.getFromStatement(statements);
                 if (parser == null) {
                     throw new InstrumentParserException(InstrumentErrorCode.UNSUPPORTED_TYPE);

@@ -77,7 +77,7 @@ public class Application implements CommandLineRunner{
             System.exit(1);
             return;
         }
-        loadRule();
+        //loadRule();
         /*String ruleLocation = commandLine.getOptionValue("r");
         InstrumentRuleJson rule = loadRule(ruleLocation);
         InstrumentRuleManager.add(rule);*/
@@ -102,7 +102,7 @@ public class Application implements CommandLineRunner{
         List<Future> futures = new ArrayList<>();
 
         Long startTime = System.currentTimeMillis();
-        InstrumentReader instrumentReader = new InstrumentFilesReader("C:\\Users\\lugan\\Downloads\\lawsource1\\");
+        InstrumentReader instrumentReader = new InstrumentFilesReader("C:\\Users\\lugan\\Downloads\\lawtest\\");
         for (int i=0; i<8; i++) {
             Future<Boolean> future = executor.submit(new InstrumentStatementsParseTask(
                     instrumentReader,
@@ -255,7 +255,7 @@ public class Application implements CommandLineRunner{
         return rule;
     }
 
-    public static void loadRule() {
+    /*public static void loadRule() {
         try {
             ClassLoader classloader = Thread.currentThread().getContextClassLoader();
             InputStream is = classloader.getResourceAsStream("rule.json");
@@ -270,6 +270,6 @@ public class Application implements CommandLineRunner{
         }
 
 
-    }
+    }*/
 
 }

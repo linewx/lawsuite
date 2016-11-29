@@ -1,5 +1,6 @@
 package com.linewx.law.instrument.parser;
 
+import com.linewx.law.instrument.service.LookupService;
 import com.linewx.law.parser.json.RuleJson;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.regex.Pattern;
 /**
  * Created by luganlin on 11/27/16.
  */
+
 
 public class ParserFactory {
     private static Pattern courtPattern;
@@ -29,7 +31,8 @@ public class ParserFactory {
         if (instrumentLevel == null) {
             instrumentLevel = "";
         }
-        RuleJson ruleJson = InstrumentRuleManager.lookup(instrumentType, instrumentLevel);
+        InstrumentRuleManager instrumentRuleManager = LookupService.getInstance().lookup(InstrumentRuleManager.class);
+        RuleJson ruleJson = instrumentRuleManager.lookup(instrumentType, instrumentLevel);
 
         if (ruleJson == null) {
             return null;
