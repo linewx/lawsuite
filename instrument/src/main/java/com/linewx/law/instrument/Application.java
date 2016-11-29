@@ -77,10 +77,6 @@ public class Application implements CommandLineRunner{
             System.exit(1);
             return;
         }
-        //loadRule();
-        /*String ruleLocation = commandLine.getOptionValue("r");
-        InstrumentRuleJson rule = loadRule(ruleLocation);
-        InstrumentRuleManager.add(rule);*/
 
         String fileName = commandLine.getOptionValue("f");
         if (fileName != null) {

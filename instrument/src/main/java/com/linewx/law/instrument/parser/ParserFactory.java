@@ -4,6 +4,7 @@ import com.linewx.law.instrument.service.LookupService;
 import com.linewx.law.parser.json.RuleJson;
 
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,11 +17,13 @@ public class ParserFactory {
     private static Pattern courtPattern;
     private static Pattern typePattern;
     private static Pattern levelPattern;
+    private static Map<String, InstrumentParser> parser;
 
     static {
         courtPattern = Pattern.compile(".*法院$");
         typePattern = Pattern.compile("(.*书)$");
         levelPattern = Pattern.compile(".*([^字|第|\\d|-]).*号.*");
+
     }
 
     public static InstrumentParser get(String instrumentType, String instrumentLevel) {
@@ -42,8 +45,12 @@ public class ParserFactory {
     }
 
     public static InstrumentParser get(String instrumentType, String instrumentLevel, RuleJson ruleJson) {
-        if ((instrumentType + instrumentLevel).equals("民事判决书初")) {
-            return new CivilJudgementInstrumentParser(ruleJson);
+        String firstMatch = instrumentType + instrumentLevel;
+        String secondMatch = instrumentType;
+        if (firstMatch.equals("民事判决书初")) {
+            return new FirstCivilJudgementInstrumentParser(ruleJson);
+        }else if(firstMatch.equals("民事判决书终")) {
+            return new FinalCivilJudgementInstrumentParser(ruleJson);
         }else {
             return null;
         }

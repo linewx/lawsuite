@@ -1,21 +1,18 @@
 package com.linewx.law.instrument.parser;
 
-import com.linewx.law.instrument.InstrumentTypeEnum;
 import com.linewx.law.instrument.exception.InstrumentErrorCode;
 import com.linewx.law.instrument.exception.InstrumentParserException;
-import com.linewx.law.instrument.exception.InstrumentUnsupportTypeException;
 import com.linewx.law.instrument.model.Instrument;
 import com.linewx.law.instrument.utils.AmountParserUtil;
 import com.linewx.law.instrument.utils.AmountUtil;
+import com.linewx.law.instrument.utils.ContentClearUtil;
 import com.linewx.law.instrument.utils.ReasonUtil;
 import com.linewx.law.parser.ParseContext;
 import com.linewx.law.parser.ParseStateMachine;
 import com.linewx.law.parser.json.RuleJson;
 import org.apache.commons.lang3.tuple.Pair;
-import org.omg.CORBA.UNKNOWN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.annotation.Order;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +21,8 @@ import java.util.Map;
 /**
  * Created by lugan on 11/23/2016.
  */
-public class CivilJudgementInstrumentParser implements InstrumentParser {
-    private static Logger logger = LoggerFactory.getLogger(CivilJudgementInstrumentParser.class);
+public class FirstCivilJudgementInstrumentParser implements InstrumentParser {
+    private static Logger logger = LoggerFactory.getLogger(FirstCivilJudgementInstrumentParser.class);
 
     private ParseStateMachine parseStateMachine;
     private RuleJson rule;
@@ -108,7 +105,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
         }
     }
 
-    public CivilJudgementInstrumentParser(RuleJson rule) {
+    public FirstCivilJudgementInstrumentParser(RuleJson rule) {
         this.rule = rule;
         parseStateMachine = new ParseStateMachine(rule);
     }
@@ -143,9 +140,11 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
 
         //validate accuser:原告
         List<String> accuserResults = results.get("accuser");
-        validateField(accuserResults, "accuser", true, null, errors);
-        String accusers = String.join("|", accuserResults);
-        instrument.setAccuser(accusers);
+        if (validateField(accuserResults, "accuser", true, null, errors)) {
+            String accusers = String.join("|", accuserResults);
+            instrument.setAccuser(accusers);
+        }
+
 
         //validate accuserLegalEntity:原告法人代表
         List<String> accuserLegalEntityResults = results.get("accuserLegalEntity");
@@ -270,6 +269,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
         List<String> clerkResults = results.get("clerk");
         if (validateField(clerkResults, "clerk", true, 1, errors)) {
             String clerk = clerkResults.get(0);
+            clerk = ContentClearUtil.clearAbstract(clerk);
             instrument.setClerk(clerk);
         }
 
