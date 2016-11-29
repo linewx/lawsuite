@@ -48,7 +48,7 @@ public class ParserFactory {
         String firstMatch = instrumentType + instrumentLevel;
         String secondMatch = instrumentType;
         if (firstMatch.equals("民事判决书初")) {
-            return new FirstCivilJudgementInstrumentParser(ruleJson);
+            return new CivilJudgementInstrumentParser(ruleJson);
         }else if(firstMatch.equals("民事判决书终")) {
             return new FinalCivilJudgementInstrumentParser(ruleJson);
         }else {

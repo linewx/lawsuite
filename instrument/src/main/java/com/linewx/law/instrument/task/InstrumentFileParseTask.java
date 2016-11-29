@@ -54,7 +54,7 @@ public class InstrumentFileParseTask implements Callable<Boolean>{
                 throw new InstrumentParserException(InstrumentErrorCode.UNSUPPORTED_TYPE);
             }
 
-            ParserResult parserResult = parser.parse(statements);
+            Instrument instrument = parser.parse(statements);
             //instrumentService.save(instrument);
             auditService.increase();
 

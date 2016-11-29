@@ -111,8 +111,9 @@ public class FirstCivilJudgementInstrumentParser implements InstrumentParser {
     }
 
     @Override
-    public ParserResult parse(List<String> statements) {
-        ParseContext context = new ParseContext();
+    public Instrument parse(List<String> statements) {
+        return null;
+        /*ParseContext context = new ParseContext();
 
 
         context.setCurrentState("start");
@@ -121,7 +122,7 @@ public class FirstCivilJudgementInstrumentParser implements InstrumentParser {
         //Instrument instrument = new Instrument(context, type);
         //instrument.loadContent();
 
-        return parseContext(context);
+        return parseContext(context);*/
     }
 
     private ParserResult parseContext(ParseContext context) {

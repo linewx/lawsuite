@@ -1,15 +1,16 @@
-package com.linewx.law.instrument.oldparser;
+package com.linewx.law.instrument.parser;
 
+import com.linewx.law.instrument.exception.InstrumentErrorCode;
 import com.linewx.law.instrument.exception.InstrumentParserException;
 import com.linewx.law.instrument.model.Instrument;
-import com.linewx.law.instrument.parser.InstrumentParser;
-import com.linewx.law.instrument.parser.ParserResult;
 import com.linewx.law.instrument.utils.AmountParserUtil;
 import com.linewx.law.instrument.utils.AmountUtil;
+import com.linewx.law.instrument.utils.ContentClearUtil;
 import com.linewx.law.instrument.utils.ReasonUtil;
 import com.linewx.law.parser.ParseContext;
 import com.linewx.law.parser.ParseStateMachine;
 import com.linewx.law.parser.json.RuleJson;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,16 +110,14 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
     }
 
     @Override
-    public ParserResult parse(List<String> statements) {
-        return null;
-        /*ParseContext context = new ParseContext();
+    public Instrument parse(List<String> statements) {
+
+        ParseContext context = new ParseContext();
         context.setCurrentState("start");
         ParseStateMachine stateMachine = new ParseStateMachine(rule);
         stateMachine.run(context, statements);
-        //Instrument instrument = new Instrument(context, type);
-        //instrument.loadContent();
 
-        return parseContext(context);*/
+        return parseContext(context);
     }
 
     private Instrument parseContext(ParseContext context) {
@@ -126,14 +125,91 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
         
         Map<String, List<String>> results = context.getResults();
 
+        /******* basic field ***********/
+
         //validate instrumentType:文书类型
         List<String> instrumentTypeResults = results.get("instrumentType");
         validateField(instrumentTypeResults, "instrumentType", true, 1);
         String instrumentType = instrumentTypeResults.get(0);
-        /*if (!this.type.getInstrumentType().equals(instrumentType)) {
-            throw new InstrumentParserException(instrumentType, InstrumentParserException.InstrumentErrorCode.UNSUPPORTED_TYPE);
-        }*/
         instrument.setInstrumentType(instrumentType);
+
+        //validate court:法院
+        List<String> courtResults = results.get("court");
+        validateField(courtResults, "court", true, 1);
+        String court = courtResults.get(0);
+        instrument.setCourt(court);
+
+
+        //validate date:判决日期
+        String date = "";
+        List<String> abstractDateResults = results.get("abstractDate");
+        if (abstractDateResults != null && !abstractDateResults.isEmpty()) {
+            date = abstractDateResults.get(0);
+            instrument.setDate(date);
+        }
+
+        if (date.isEmpty()) {
+            List<String> dateResults = results.get("date");
+            validateField(dateResults, "date", true, 1);
+            date = dateResults.get(0);
+            instrument.setDate(date);
+        }
+
+        //validate clerk:书记员
+        List<String> clerkResults = results.get("clerk");
+        validateField(clerkResults, "clerk", true, 1);
+        String clerk = clerkResults.get(0);
+        clerk = ContentClearUtil.clearAbstract(clerk);
+        instrument.setClerk(clerk);
+
+        //validate judge:法官
+        //validate mainJudge:主审法官
+        //validate secondaryJudge:非主审法官
+        //validate secondaryJudge1:非主审法官1
+        //validate secondaryJudge2:非主审法官2
+        List<String> judgeResults = results.get("judge");
+        validateField(judgeResults, "judge", true, 3);
+        for (int i = 0; i < judgeResults.size(); i++) {
+            if (i == 0) {
+                instrument.setMainJudge(judgeResults.get(0));
+            }
+
+            if (i == 1) {
+                instrument.setSecondaryJudge(judgeResults.get(1));
+            }
+
+            if (i == 2) {
+                instrument.setSecondaryJudge2(judgeResults.get(2));
+            }
+        }
+
+        //validate number:案号
+        List<String> numberResults = results.get("number");
+        validateField(numberResults, "number", true, 1);
+        String number = numberResults.get(0);
+        instrument.setNumber(number);
+
+        //validate caseType:案件类型
+        List<String> caseTypeResults = results.get("caseType");
+        validateField(caseTypeResults, "caseType", true, 1);
+        String caseType = caseTypeResults.get(0);
+        instrument.setCaseType(caseType);
+
+
+        //validate suiteDate:立案年份
+        List<String> suiteDateResults = results.get("suiteDate");
+        validateField(suiteDateResults, "suiteDate", true, 1);
+        String suiteDate = suiteDateResults.get(0);
+        instrument.setSuiteDate(suiteDate);
+
+        //validate level:审级
+        //todo: level detail
+        List<String> levelResults = results.get("level");
+        validateField(levelResults, "level", true, 1);
+        String level = levelResults.get(0);
+        instrument.setLevel(level);
+
+        /********* end basic field ************/
 
         //validate accuser:原告
         List<String> accuserResults = results.get("accuser");
@@ -211,80 +287,33 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
             throw new InstrumentParserException("mismatch defendantLawyer and defendantLawyerOffice");
         }
 
-        //validate accuserProperty:原告企业类别和行业属性
-        //validate defendantProperty:被告企业类别和行业属性
 
-        //validate judge:法官
-        //validate mainJudge:主审法官
-        //validate secondaryJudge:非主审法官
-        //validate secondaryJudge1:非主审法官1
-        //validate secondaryJudge2:非主审法官2
-        List<String> judgeResults = results.get("judge");
-        validateField(judgeResults, "judge", true, 3);
-        for (int i = 0; i < judgeResults.size(); i++) {
-            if (i == 0) {
-                instrument.setMainJudge(judgeResults.get(0));
-            }
 
-            if (i == 1) {
-                instrument.setSecondaryJudge(judgeResults.get(1));
-            }
 
-            if (i == 2) {
-                instrument.setSecondaryJudge2(judgeResults.get(2));
-            }
-        }
 
-        //validate date:判决日期
-        List<String> dateResults = results.get("date");
-        validateField(dateResults, "date", true, 1);
-        String date = dateResults.get(0);
-        instrument.setDate(date);
 
-        //validate clerk:书记员
-        List<String> clerkResults = results.get("clerk");
-        validateField(clerkResults, "clerk", true, 1);
-        String clerk = clerkResults.get(0);
-        instrument.setClerk(clerk);
 
         //validate reason:案由
-        //todo: reason detail
-        List<String> reasonResults = results.get("reason");
-        validateField(reasonResults, "reason", true, 1);
-        String reason = ReasonUtil.getReason(reasonResults.get(0));
-        instrument.setReason(reason);
+        String reason = "";
 
-        //validate number:案号
-        List<String> numberResults = results.get("number");
-        validateField(numberResults, "number", true, 1);
-        String number = numberResults.get(0);
-        instrument.setNumber(number);
+        List<String> abstractReasonResults = results.get("abstractReason");
+        if (abstractDateResults != null && !abstractDateResults.isEmpty()) {
+            reason = abstractReasonResults.get(0);
+            instrument.setReason(reason);
+        }
 
-        //validate caseType:案件类型
-        List<String> caseTypeResults = results.get("caseType");
-        validateField(caseTypeResults, "caseType", true, 1);
-        String caseType = caseTypeResults.get(0);
-        instrument.setCaseType(caseType);
+        if (reason.isEmpty()) {
+            List<String> reasonResults = results.get("reason");
+            validateField(reasonResults, "reason", true, 1);
+            reason = ReasonUtil.getReason(reasonResults.get(0));
 
+            if (reason != null) {
+                instrument.setReason(reason);
+            }else {
+                throw new InstrumentParserException("can not identify reason", InstrumentErrorCode.INPROPER_REASON);
+            }
 
-        //validate suiteDate:立案年份
-        List<String> suiteDateResults = results.get("suiteDate");
-        validateField(suiteDateResults, "suiteDate", true, 1);
-        String suiteDate = suiteDateResults.get(0);
-        instrument.setSuiteDate(suiteDate);
-
-        //validate level:审级
-        //todo: level detail
-        List<String> levelResults = results.get("level");
-        validateField(levelResults, "level", true, 1);
-        String level = levelResults.get(0);
-        instrument.setLevel(level);
-
-        //validate court:法院
-        List<String> courtResults = results.get("court");
-        validateField(courtResults, "court", true, 1);
-        String court = courtResults.get(0);
-        instrument.setCourt(court);
+        }
 
         //validate cost:案件受理费
         List<String> costResults = results.get("cost");
@@ -352,25 +381,26 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
 
         //validate firstConciliation:一审调解结案
 
+        //validate accuserProperty:原告企业类别和行业属性
+        //validate defendantProperty:被告企业类别和行业属性
+
 
         return instrument;
     }
 
     private void validateField(List<String> fieldValues, String fieldName, Boolean required, Integer maxNumber) {
-        /*if (required) {
+        if (required) {
             //validate required
             if (fieldValues == null || fieldValues.isEmpty()) {
-                throw new InstrumentParserException("no " + fieldName + " found", InstrumentParserException.ErrorCode.FIELD_MISSING);
-
-
+                throw new InstrumentParserException("no " + fieldName + " found", InstrumentErrorCode.FIELD_MISSING);
             }
         }
 
         if (maxNumber != null) {
             if (fieldValues != null && fieldValues.size() > maxNumber) {
-                throw new InstrumentParserException(maxNumber + " or more than " + fieldName + " have been found: " + fieldValues.toString(), ErrorCode.FILED_EXCEED);
+                throw new InstrumentParserException(maxNumber + " or more than " + fieldName + " have been found: " + fieldValues.toString(), InstrumentErrorCode.FILED_EXCEED);
             }
-        }*/
+        }
     }
 
     private CostInformation calculateCost(Long cost,

@@ -35,7 +35,7 @@ public class InstrumentStatementsParseTask implements Callable<Boolean>{
     @Override
     public Boolean call() throws Exception {
         while(true) {
-            ParserResult parserResult = null;
+            Instrument instrument = null;
             List<List<String>> statementsList = instrumentReader.readBulk(100);
             if (statementsList == null || statementsList.isEmpty()) {
                 break;
@@ -48,17 +48,7 @@ public class InstrumentStatementsParseTask implements Callable<Boolean>{
                         throw new InstrumentParserException(InstrumentErrorCode.UNSUPPORTED_TYPE);
                     }
 
-                    parserResult = parser.parse(statements);
-
-                    List<Pair<InstrumentErrorCode, String>> errors = parserResult.getErrors();
-                    List<String> debugContent = new ArrayList<>();
-                    if(parserResult != null) {
-                        debugContent.add("########### debug content ##########");
-                        debugContent.addAll(statements);
-                        debugContent.addAll(parserResult.getFullContent());
-                        debugContent.add("########### end debug content #########");
-                        logger.error(String.join("\r\n", debugContent));
-                    }
+                    instrument = parser.parse(statements);
 
                     //instrumentService.save(instrument);
                     auditService.increase();
@@ -67,30 +57,25 @@ public class InstrumentStatementsParseTask implements Callable<Boolean>{
 
                     if (!e.getInstrumentErrorCode().equals(InstrumentErrorCode.UNSUPPORTED_TYPE)) {
                         auditService.increaseError();
+                        List<String> errorMessage = new ArrayList<>();
+                        errorMessage.add("");
+                        errorMessage.addAll(statements);
+                        errorMessage.add("error: " + e.getInstrumentErrorCode().name() + "-" + e.getMessage());
+                        logger.error(String.join("\n", errorMessage));
 
                     }else {
-                        auditService.increaseUnsupport();
-                    }
 
-                    List<String> debugContent = new ArrayList<>();
-                    if(parserResult != null) {
-                        debugContent.add("########### debug content ##########");
-                        debugContent.addAll(statements);
-                        debugContent.addAll(parserResult.getFullContent());
-                        debugContent.add("########### end debug content #########");
-                        logger.error(String.join("\r\n", debugContent));
+                        auditService.increaseUnsupport();
+
                     }
 
                 } catch (Exception e) {
                     auditService.increaseError();
-                    List<String> debugContent = new ArrayList<>();
-                    if(parserResult != null) {
-                        debugContent.add("########### debug content ##########");
-                        debugContent.addAll(statements);
-                        debugContent.addAll(parserResult.getFullContent());
-                        debugContent.add("########### end debug content #########");
-                        logger.error(String.join("\r\n", debugContent));
-                    }
+                    List<String> errorMessage = new ArrayList<>();
+                    errorMessage.add("");
+                    errorMessage.addAll(statements);
+                    errorMessage.add("error: " +  e.getMessage());
+                    logger.error(String.join("\n", errorMessage));
                 }
             }
 

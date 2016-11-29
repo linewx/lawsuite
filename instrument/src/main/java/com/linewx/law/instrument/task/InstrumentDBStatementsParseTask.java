@@ -41,7 +41,7 @@ public class InstrumentDBStatementsParseTask implements Callable<Boolean>{
                     throw new InstrumentParserException(InstrumentErrorCode.UNSUPPORTED_TYPE);
                 }
 
-                ParserResult parserResult = parser.parse(statements);
+                Instrument instrument = parser.parse(statements);
                 //instrument.setRawdata(rawdata.getNr());
                 //instrumentService.save(instrument);
                 auditService.increase();

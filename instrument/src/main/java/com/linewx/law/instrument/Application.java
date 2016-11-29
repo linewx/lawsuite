@@ -98,7 +98,7 @@ public class Application implements CommandLineRunner{
         List<Future> futures = new ArrayList<>();
 
         Long startTime = System.currentTimeMillis();
-        InstrumentReader instrumentReader = new InstrumentFilesReader("C:\\Users\\lugan\\Downloads\\lawtest\\");
+        InstrumentReader instrumentReader = new InstrumentFilesReader("/Users/luganlin/Documents/law/lawsource2");
         for (int i=0; i<8; i++) {
             Future<Boolean> future = executor.submit(new InstrumentStatementsParseTask(
                     instrumentReader,

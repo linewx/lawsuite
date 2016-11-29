@@ -55,7 +55,7 @@ public class ReasonUtil{
             return secondaryReasonMatcher.group(1);
         }
 
-        throw new InstrumentParserException("不明案由");
+        return null;
     }
 
 
