@@ -30,7 +30,7 @@ public class InstrumentRuleManager {
     public void load() {
         ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
         try {
-            Resource[] metaInfResources = resourcePatternResolver.getResources("classpath*:**/*rule.json");
+            Resource[] metaInfResources = resourcePatternResolver.getResources("classpath*:rule/*Rule.json");
             Gson gson = new Gson();
             for(Resource rule : metaInfResources){
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(rule.getInputStream(), "UTF8"));

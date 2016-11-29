@@ -258,7 +258,7 @@ public class Application implements CommandLineRunner{
     /*public static void loadRule() {
         try {
             ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-            InputStream is = classloader.getResourceAsStream("rule.json");
+            InputStream is = classloader.getResourceAsStream("firstCivilAjudgementRule.json");
             BufferedReader bufferedReader = new BufferedReader(
                     new InputStreamReader(is, "UTF8"));
             Gson gson = new Gson();
