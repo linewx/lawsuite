@@ -1,6 +1,6 @@
 {
 	"firstState": "start",
-	"type": "民事判决书",
+	"type": "民事调解书",
 	"level": "初",
 	"states": [
 		{
@@ -189,6 +189,14 @@
 				{
 					"action": "setFieldWithReg",
 					"parameters": [
+						"firstConciliation",
+						"cur",
+						".*(自愿达成.*协议).*"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
 						"cost",
 						"cur",
 						"^[\u4e00-\u9fa5|、]*(?:受理费|诉讼费)(?:人民币|用|收取)?([\\d|，|〇|一|二|三|四|五|六|七|八|九|十|百|千|万|亿]+)"
@@ -369,7 +377,7 @@
 			"target": "verdict",
 			"condition": {
 				"previous": ".*法院$",
-				"current": ".*(判 决 书|裁 定 书)$"
+				"current": ".*(书)$"
 			}
 		},
 		{

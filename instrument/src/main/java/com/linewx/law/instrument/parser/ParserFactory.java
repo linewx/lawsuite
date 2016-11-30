@@ -51,7 +51,10 @@ public class ParserFactory {
             return new CivilJudgementInstrumentParser(ruleJson);
         }else if(firstMatch.equals("民事判决书终")) {
             return new FinalCivilJudgementInstrumentParser(ruleJson);
-        }else {
+        }else if(firstMatch.equals("民事调解书初")) {
+            return new FirstCivilConciliationInstrumentParser(ruleJson);
+        }
+        else {
             return null;
         }
     }
