@@ -9,12 +9,16 @@ import com.linewx.law.instrument.parser.InstrumentParser;
 import com.linewx.law.instrument.parser.ParserFactory;
 import com.linewx.law.instrument.parser.ParserResult;
 import com.linewx.law.instrument.reader.InstrumentReader;
+import com.linewx.law.parser.NameMapping;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -49,8 +53,27 @@ public class InstrumentStatementsParseTask implements Callable<Boolean>{
                     }
 
                     instrument = parser.parse(statements);
+                    List<String> debugMessage = new ArrayList<>();
+                    if (instrument != null) {
+                        List<String> instrumentContent = new ArrayList<>();
+                        Class<Instrument> instrumentClazz = Instrument.class;
+                        for (Map.Entry<String, String> name : NameMapping.names.entrySet()) {
+                            try {
+                                Method method = instrumentClazz.getMethod("get" + WordUtils.capitalize(name.getKey()));
+                                Object oneValue = method.invoke(instrument);
+                                instrumentContent.add(name.getValue() + ":" + oneValue.toString());
 
-                    //instrumentService.save(instrument);
+                            } catch (Exception e) {
+
+                            }
+                            debugMessage.addAll(statements);
+                            debugMessage.addAll(instrumentContent);
+                            logger.info(String.join("\n", debugMessage));
+                        }
+
+                    }
+
+
                     auditService.increase();
 
                 } catch (InstrumentParserException e) {

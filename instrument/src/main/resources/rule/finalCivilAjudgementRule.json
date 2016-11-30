@@ -4,7 +4,17 @@
 	"level": "终",
 	"states": [
 		{
-			"id": "start"
+			"id": "start",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"relatedNumber",
+						"cur",
+						"关联文书.*（[\\d]*）(.*?号)"
+					]
+				}
+			]
 		},
 		{
 			"id": "court",
@@ -88,6 +98,14 @@
 				{
 					"action": "setFieldWithReg",
 					"parameters": [
+						"appellantIsAccuser",
+						"cur",
+						"^上诉人(（.*）)?(?:[\u4e00-\u9fa5|\\w]*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
 						"accuserAlias",
 						"cur",
 						"以下简称([\u4e00-\u9fa5]*)"
@@ -128,7 +146,7 @@
 					"parameters": [
 						"defendant",
 						"cur",
-						"^被上诉人.*[）]?([\u4e00-\u9fa5]*)"
+						"^被上诉人(?:（.*）)?([\u4e00-\u9fa5|\\w]*)"
 					]
 				},
 				{
@@ -184,6 +202,30 @@
 						"content",
 						"cur",
 						"(.*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"judgeType1",
+						"cur",
+						".*(驳回上诉，维持原判).*"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"judgeType2",
+						"cur",
+						".*(发回.*重审).*"
+					]
+				},
+				{
+					"action": "cacheMultiLines",
+					"parameters": [
+						"judgeType3",
+						".*判决如下(.*)",
+						"^(.*)终审判决.*"
 					]
 				},
 				{

@@ -66,7 +66,19 @@ public class Instrument implements java.io.Serializable {
 	@Column(length = Integer.MAX_VALUE)
 	private String rawdata;
 
-    public Instrument() {
+	//二审
+	private String relatedNumber; //关联案件组
+	private Boolean appellantIsAccuser; //上诉人是否原审原告
+	private String judgeType; //审判类型
+	private Boolean finalConciliation; //二审调解结案
+	//上诉人委托代理人
+	//被上诉人委托代理人
+	//二审律师缺勤标记
+	//二审缺勤率
+
+
+
+	public Instrument() {
 
 	}
 	
@@ -381,5 +393,37 @@ public class Instrument implements java.io.Serializable {
 
 	public void setRawdata(String rawdata) {
 		this.rawdata = rawdata;
+	}
+
+	public String getRelatedNumber() {
+		return relatedNumber;
+	}
+
+	public void setRelatedNumber(String relatedNumber) {
+		this.relatedNumber = relatedNumber;
+	}
+
+	public Boolean getAppellantIsAccuser() {
+		return appellantIsAccuser;
+	}
+
+	public void setAppellantIsAccuser(Boolean appellantIsAccuser) {
+		this.appellantIsAccuser = appellantIsAccuser;
+	}
+
+	public String getJudgeType() {
+		return judgeType;
+	}
+
+	public void setJudgeType(String judgeType) {
+		this.judgeType = judgeType;
+	}
+
+	public Boolean getFinalConciliation() {
+		return finalConciliation;
+	}
+
+	public void setFinalConciliation(Boolean finalConciliation) {
+		this.finalConciliation = finalConciliation;
 	}
 }
