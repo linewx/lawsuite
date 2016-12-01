@@ -411,7 +411,7 @@
 			"target": "verdict",
 			"condition": {
 				"previous": ".*法院$",
-				"current": ".*(判 决 书|裁 定 书)$"
+				"current": ".*(书)$"
 			}
 		},
 		{

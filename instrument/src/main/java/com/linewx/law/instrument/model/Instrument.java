@@ -11,12 +11,11 @@ import javax.persistence.*;
 @Table(name = "Instrument")
 public class Instrument implements java.io.Serializable {
 
+	private static Logger logger = LoggerFactory.getLogger(Instrument.class);
+
 	@Id
 	@GeneratedValue
 	private Long id;
-
-	private static Logger logger = LoggerFactory.getLogger(Instrument.class);
-
 
 	@Column(length = 1000)
 	private String accuser;  //原告
