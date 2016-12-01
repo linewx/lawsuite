@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -39,12 +40,14 @@ public class InstrumentStatementsParseTask implements Callable<Boolean>{
     @Override
     public Boolean call() throws Exception {
         while(true) {
-            Instrument instrument = null;
-            List<List<String>> statementsList = instrumentReader.readBulk(100);
-            if (statementsList == null || statementsList.isEmpty()) {
+
+            Iterable<List<String>> statementsList = instrumentReader.readBulk(100);
+            if (statementsList == null || !statementsList.iterator().hasNext()) {
                 break;
             }
+            List<Instrument> instrumentList = new ArrayList<>();
             for (List<String> statements: statementsList) {
+                Instrument instrument = new Instrument();
                 try {
 
                     InstrumentParser parser = ParserFactory.getFromStatement(statements);
@@ -53,7 +56,7 @@ public class InstrumentStatementsParseTask implements Callable<Boolean>{
                     }
 
                     instrument = parser.parse(statements);
-                    List<String> debugMessage = new ArrayList<>();
+                    /*List<String> debugMessage = new ArrayList<>();
                     if (instrument != null) {
                         List<String> instrumentContent = new ArrayList<>();
                         Class<Instrument> instrumentClazz = Instrument.class;
@@ -71,41 +74,43 @@ public class InstrumentStatementsParseTask implements Callable<Boolean>{
                             logger.info(String.join("\n", debugMessage));
                         }
 
-                    }
+                    }*/
 
-
+                    instrumentList.add(instrument);
                     auditService.increase();
 
                 } catch (InstrumentParserException e) {
 
                     if (!e.getInstrumentErrorCode().equals(InstrumentErrorCode.UNSUPPORTED_TYPE)) {
                         auditService.increaseError();
-                        List<String> errorMessage = new ArrayList<>();
+                        /*List<String> errorMessage = new ArrayList<>();
                         errorMessage.add("");
                         errorMessage.addAll(statements);
                         errorMessage.add("error: " + e.getInstrumentErrorCode().name() + "-" + e.getMessage());
-                        logger.error(String.join("\n", errorMessage));
+                        logger.error(String.join("\n", errorMessage));*/
 
                     }else {
-
                         auditService.increaseUnsupport();
-
                     }
+
+                    instrument.setErrorCode(e.getInstrumentErrorCode().getErrorCode());
+                    instrument.setErrorMesasge(e.getMessage());
+                    instrumentList.add(instrument);
 
                 } catch (Exception e) {
                     auditService.increaseError();
-                    List<String> errorMessage = new ArrayList<>();
+                    instrument.setErrorCode(InstrumentErrorCode.UNKNOWN.getErrorCode());
+                    instrument.setErrorMesasge(e.getMessage());
+                    instrumentList.add(instrument);
+                    /*List<String> errorMessage = new ArrayList<>();
                     errorMessage.add("");
                     errorMessage.addAll(statements);
                     errorMessage.add("error: " +  e.getMessage());
-                    logger.error(String.join("\n", errorMessage));
+                    logger.error(String.join("\n", errorMessage));*/
                 }
             }
-
-
+            instrumentService.save(instrumentList);
         }
-
-
         return true;
     }
 }

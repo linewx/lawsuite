@@ -92,9 +92,9 @@ public class Application implements CommandLineRunner{
 
         //parseFromDB();
         //parseFromDBSync();
-        //storeDataToFile();
+        storeDataToFile();
 
-        ExecutorService executor = Executors.newFixedThreadPool(8);
+        /*ExecutorService executor = Executors.newFixedThreadPool(8);
         List<Future> futures = new ArrayList<>();
 
         Long startTime = System.currentTimeMillis();
@@ -112,7 +112,7 @@ public class Application implements CommandLineRunner{
 
         Long endTime = System.currentTimeMillis();
 
-        System.out.println((endTime - startTime) * 1000);
+        System.out.println((endTime - startTime) / 1000);
         Map<String, Long> auditResult = auditService.getResult();
 
         for (Map.Entry<String, Long> entry: auditResult.entrySet()) {
@@ -122,12 +122,15 @@ public class Application implements CommandLineRunner{
         Long processed = auditService.getProcessed();
         Long error = auditService.getError();
         Long unsupported = auditService.getUnsupported();
-        Long regPer = (processed - error - unsupported) * 100 / (processed - unsupported);
+        Long regPer = 0L;
+        if (!processed.equals(unsupported)) {
+            regPer = (processed - error - unsupported) * 100 / (processed - unsupported);
+        }
 
         System.out.print("识别率:" + regPer.toString() + "%.");
         System.out.println();
         executor.shutdown();
-
+*/
     }
 
     public void parseFile(String fileName) {
@@ -138,28 +141,27 @@ public class Application implements CommandLineRunner{
         }catch(Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public void parseFromDBSync() throws Exception {
-        List<Rawdata> rawdatas = rawdataService.getData(1);
+        /*Iterable<Rawdata> rawdatas = rawdataService.getData(1);
         InstrumentDBStatementsParseTask instrumentStatementsParseTask =
                 new InstrumentDBStatementsParseTask(rawdatas, instrumentService, auditService);
-        instrumentStatementsParseTask.call();
+        instrumentStatementsParseTask.call();*/
     }
 
     public void storeDataToFile() throws Exception{
         int currentPage = 0;
         int process = 0;
         while(true) {
-            List<Rawdata> rawdatas = rawdataService.getData(currentPage);
-            if (rawdatas == null || rawdatas.isEmpty()) {
+            Iterable<Rawdata> rawdatas = rawdataService.getData(currentPage);
+            if (rawdatas == null || !rawdatas.iterator().hasNext()) {
                 break;
             }else {
                 for (Rawdata rawdata: rawdatas) {
                     String id = ((Long)rawdata.getId()).toString();
                     try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                            new FileOutputStream("C:\\Users\\lugan\\Downloads\\lawsource2\\" + id + ".txt"), "utf-8"))) {
+                            new FileOutputStream("C:\\Users\\lugan\\Downloads\\law\\zaishen" + id + ".txt"), "utf-8"))) {
                         writer.write(rawdata.getNr());
                     }
                 }
@@ -170,8 +172,6 @@ public class Application implements CommandLineRunner{
             currentPage = currentPage + 1;
 
         }
-
-
     }
 
     public void parseFromDB() throws Exception{
@@ -180,8 +180,8 @@ public class Application implements CommandLineRunner{
 
         int currentPage = 0;
         while(true) {
-            List<Rawdata> rawdatas = rawdataService.getData(currentPage);
-            if (rawdatas == null || rawdatas.isEmpty()) {
+            Iterable<Rawdata> rawdatas= rawdataService.getData(currentPage);
+            if (rawdatas == null || !rawdatas.iterator().hasNext()) {
                 break;
             }else {
                 Future<Boolean> future = executor.submit(new InstrumentDBStatementsParseTask(rawdatas, instrumentService, auditService));
@@ -242,7 +242,6 @@ public class Application implements CommandLineRunner{
         System.out.println();
         executor.shutdown();
     }
-
 
     public static InstrumentRuleJson loadRule(String ruleLocation) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(ruleLocation));

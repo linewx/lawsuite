@@ -15,7 +15,7 @@ public enum InstrumentErrorCode {
             this.errorCode = errorCode;
         }
 
-        int getErrorCode() {
+        public int getErrorCode() {
             return this.errorCode;
         }
     }

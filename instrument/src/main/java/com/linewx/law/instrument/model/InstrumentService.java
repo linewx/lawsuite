@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 @Service
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
@@ -24,5 +25,13 @@ public class InstrumentService {
 		instrumentRepository.save(instrument);
 		return instrument;
 	}
+
+	@Transactional
+	public void save(List<Instrument> instrumentList) {
+		instrumentList.forEach(instrument -> instrumentRepository.save(instrument));
+		//instrumentRepository.save(instrument);
+		//return instrument;
+	}
+
 
 }

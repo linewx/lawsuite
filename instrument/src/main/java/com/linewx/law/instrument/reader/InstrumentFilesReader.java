@@ -5,6 +5,7 @@ import com.google.common.io.Files;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -20,7 +21,7 @@ public class InstrumentFilesReader implements InstrumentReader{
     }
 
     @Override
-   public List<List<String>> readBulk(int bulkSize) {
+   public Iterable<List<String>> readBulk(int bulkSize) {
 
         int curPosition;
         int nextPosition;
@@ -35,6 +36,7 @@ public class InstrumentFilesReader implements InstrumentReader{
             return null;
         }
         List<List<String>> results = new ArrayList<>();
+
         for (int i = curPosition; i<nextPosition; i++) {
             try {
                 List<String> oneFileContent = Files.readLines(files[i], Charsets.UTF_8);

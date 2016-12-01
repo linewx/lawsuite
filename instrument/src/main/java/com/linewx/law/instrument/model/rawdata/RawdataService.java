@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -26,9 +27,14 @@ public class RawdataService {
 	}
 
 
-	public List<Rawdata> getData(int page) {
+	public Iterable<Rawdata> getData(int page, int bulkSize) {
+		Page<Rawdata> rawdatas = rawdataRepository.findAll(new PageRequest(page, bulkSize));
+		return rawdatas;
+	}
+
+	public Iterable<Rawdata> getData(int page) {
 		Page<Rawdata> rawdatas = rawdataRepository.findAll(new PageRequest(page, 100));
-		return rawdatas.getContent();
+		return rawdatas;
 	}
 
 }

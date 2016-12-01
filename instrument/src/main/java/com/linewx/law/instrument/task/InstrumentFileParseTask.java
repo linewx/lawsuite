@@ -22,7 +22,7 @@ import java.util.concurrent.Callable;
 /**
  * Created by luganlin on 11/26/16.
  */
-public class InstrumentFileParseTask implements Callable<Boolean>{
+public class InstrumentFileParseTask implements Callable<Boolean> {
     private File file;
     private InstrumentService instrumentService;
     private AuditService auditService;
@@ -37,6 +37,7 @@ public class InstrumentFileParseTask implements Callable<Boolean>{
     public Boolean call() throws Exception {
         ParseContext context = new ParseContext();
         List<String> statements = new ArrayList<>();
+        Instrument instrument = new Instrument();
         try {
             Document doc = Jsoup.parse(file, "GBK");
             Element element = doc.getElementById("DivContent");
@@ -54,22 +55,24 @@ public class InstrumentFileParseTask implements Callable<Boolean>{
                 throw new InstrumentParserException(InstrumentErrorCode.UNSUPPORTED_TYPE);
             }
 
-            Instrument instrument = parser.parse(statements);
+            instrument = parser.parse(statements);
             //instrumentService.save(instrument);
             auditService.increase();
 
             //instrumentService.save(instrument);
 
         } catch (InstrumentParserException e) {
-
             if (!e.getInstrumentErrorCode().equals(InstrumentErrorCode.UNSUPPORTED_TYPE)) {
-               auditService.increaseError();
+                auditService.increaseError();
+                instrument.setErrorCode(e.getInstrumentErrorCode().getErrorCode());
+                instrument.setErrorMesasge(e.getMessage());
 
-            }else {
+            } else {
                 auditService.increaseUnsupport();
             }
 
         } catch (Exception e) {
+            //instrument
             auditService.increaseError();
         }
         return true;

@@ -19,11 +19,11 @@ import java.util.concurrent.Callable;
  * Created by luganlin on 11/26/16.
  */
 public class InstrumentDBStatementsParseTask implements Callable<Boolean>{
-    private List<Rawdata> statementsList;
+    private Iterable<Rawdata> statementsList;
     private InstrumentService instrumentService;
     private AuditService auditService;
 
-    public InstrumentDBStatementsParseTask(List<Rawdata> statementsList, InstrumentService instrumentService, AuditService auditService) {
+    public InstrumentDBStatementsParseTask(Iterable<Rawdata> statementsList, InstrumentService instrumentService, AuditService auditService) {
         this.statementsList = statementsList;
         this.instrumentService = instrumentService;
         this.auditService = auditService;

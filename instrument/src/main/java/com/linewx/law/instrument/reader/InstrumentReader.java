@@ -1,5 +1,6 @@
 package com.linewx.law.instrument.reader;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -9,5 +10,5 @@ public interface InstrumentReader {
     //List<String> read();
 
 
-    List<List<String>> readBulk(int bulkSize);
+    Iterable<List<String>> readBulk(int bulkSize);
 }

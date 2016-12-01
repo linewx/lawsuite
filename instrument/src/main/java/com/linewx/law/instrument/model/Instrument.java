@@ -2,6 +2,7 @@ package com.linewx.law.instrument.model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 //import java.time.Instant;
@@ -62,7 +63,10 @@ public class Instrument implements java.io.Serializable {
 	private Long defendantAmountPer;  //被告抗辩获支持率
 	private Boolean firstConciliation;  //一审调解结案
 
-	@Column(length = Integer.MAX_VALUE)
+	private int errorCode;
+	private String errorMesasge;
+
+	@Column(length = 100000)
 	private String rawdata;
 
 	//二审
@@ -424,5 +428,21 @@ public class Instrument implements java.io.Serializable {
 
 	public void setFinalConciliation(Boolean finalConciliation) {
 		this.finalConciliation = finalConciliation;
+	}
+
+	public int getErrorCode() {
+		return errorCode;
+	}
+
+	public void setErrorCode(int errorCode) {
+		this.errorCode = errorCode;
+	}
+
+	public String getErrorMesasge() {
+		return errorMesasge;
+	}
+
+	public void setErrorMesasge(String errorMesasge) {
+		this.errorMesasge = errorMesasge;
 	}
 }
