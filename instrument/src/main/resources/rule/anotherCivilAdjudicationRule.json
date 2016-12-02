@@ -1,7 +1,7 @@
 {
 	"firstState": "start",
-	"type": "民事调解书",
-	"level": "终",
+	"type": "民事裁定书|民事判决书|民事调解书",
+	"level": "再",
 	"states": [
 		{
 			"id": "start",
@@ -92,7 +92,7 @@
 					"parameters": [
 						"accuser",
 						"cur",
-						"^上诉人(?:（.*）)?([\u4e00-\u9fa5|\\w]*)"
+						["^(?:再审申请人|申请再审人)[^ ,]*?[:|）|)|：]+([\u4e00-\u9fa5]*)", "^(?:申请人再审人|申请人|再审人|再审申请人|.审原告)([\u4e00-\u9fa5]*)"]
 					]
 				},
 				{
@@ -132,7 +132,7 @@
 					"parameters": [
 						"accuserLawyerOffice",
 						"cur",
-						"([\u4e00-\u9fa5]*事务所)[\u4e00-\u9fa5]*律.*"
+						"([\u4e00-\u9fa5]*律师事务所?)"
 					]
 				}
 			]
@@ -146,7 +146,7 @@
 					"parameters": [
 						"defendant",
 						"cur",
-						"^被上诉人(?:（.*）)?([\u4e00-\u9fa5|\\w]*)"
+						["^(?:被申请人|被申请再审人|再审被申请人|.审被告)[^ ,]*?[:|）|)|：]+([\u4e00-\u9fa5]*)", "^(?:被申请人|被申请再审人|再审被申请人|.审被告)([\u4e00-\u9fa5]*)"]
 					]
 				},
 				{
@@ -178,7 +178,7 @@
 					"parameters": [
 						"defendantLawyerOffice",
 						"cur",
-						"([\u4e00-\u9fa5]*事务所?)[\u4e00-\u9fa5]*律.*"
+						"([\u4e00-\u9fa5]*律师事务所?)"
 					]
 				}
 			]
@@ -209,7 +209,7 @@
 					"parameters": [
 						"relatedNumber",
 						"cur",
-						"不服[\u4e00-\u9fa5|\\d]*(.*?号)"
+						"(（[\\d]{4}）.{0,10}字第[\\d]*号)"
 					]
 				},
 				{
@@ -435,7 +435,7 @@
 			"target": "accuser",
 			"condition": {
 				"previous": null,
-				"current":  "^(原告|委托代理人|公诉机关|上诉人|负责人).*"
+				"current":  "^(申请再审人|再审申请人|.审原告).*"
 			}
 		},
 		{
@@ -443,7 +443,7 @@
 			"target": "defendant",
 			"condition": {
 				"previous": null,
-				"current":  "^被上诉人.*"
+				"current":  "^(被申请|再审被申请).*"
 			}
 		},
 		{
@@ -451,7 +451,7 @@
 			"target": "defendant",
 			"condition": {
 				"previous": null,
-				"current":  "^被上诉人.*"
+				"current":  "^(被申请|再审被申请|.审被告).*"
 			}
 		},
 		{

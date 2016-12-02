@@ -27,6 +27,14 @@ public class FinalCivilConciliationInstrumentParser extends BasicInstrumentParse
 
     @Override
     void populateOtherField(ParseContext context, Instrument instrument) {
+        Map<String, List<String>> results = context.getResults();
+        //二审
+        //relatedNumber关联案件组
+        List<String> relatedNumberResults = results.get("relatedNumber");
+        validateField(relatedNumberResults, "relatedNumberResults", true, null);
+        instrument.setRelatedNumber(relatedNumberResults.get(0));
+
         populateDefaultCostAmount(instrument);
+
     }
 }

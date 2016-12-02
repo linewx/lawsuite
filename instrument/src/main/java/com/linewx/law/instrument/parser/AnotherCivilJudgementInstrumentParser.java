@@ -1,30 +1,21 @@
 package com.linewx.law.instrument.parser;
 
-import com.linewx.law.instrument.exception.InstrumentErrorCode;
-import com.linewx.law.instrument.exception.InstrumentParserException;
 import com.linewx.law.instrument.model.Instrument;
-import com.linewx.law.instrument.utils.AmountParserUtil;
-import com.linewx.law.instrument.utils.AmountUtil;
-import com.linewx.law.instrument.utils.ContentClearUtil;
-import com.linewx.law.instrument.utils.ReasonUtil;
 import com.linewx.law.parser.ParseContext;
-import com.linewx.law.parser.ParseStateMachine;
 import com.linewx.law.parser.json.RuleJson;
-import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by lugan on 11/23/2016.
  */
-public class FinalCivilJudgementInstrumentParser extends BasicInstrumentParser implements InstrumentParser {
+public class AnotherCivilJudgementInstrumentParser extends BasicInstrumentParser implements InstrumentParser {
     //private static Logger logger = LoggerFactory.getLogger(FinalCivilJudgementInstrumentParser.class);
 
-    public FinalCivilJudgementInstrumentParser(RuleJson ruleJson) {
+    public AnotherCivilJudgementInstrumentParser(RuleJson ruleJson) {
         super(ruleJson);
     }
 
@@ -35,10 +26,12 @@ public class FinalCivilJudgementInstrumentParser extends BasicInstrumentParser i
         //relatedNumber关联案件组
         List<String> relatedNumberResults = results.get("relatedNumber");
         validateField(relatedNumberResults, "relatedNumberResults", true, null);
-        instrument.setRelatedNumber(relatedNumberResults.get(0));
+        Set<String> relatedNumberSet = new HashSet<>(relatedNumberResults);
+        relatedNumberSet.removeIf(oneNumber -> oneNumber.equals(instrument.getNumber()));
+        instrument.setRelatedNumber(String.join("|", relatedNumberSet));
 
 
-        //appellantIsAccuser上诉人是否原审原告
+       /* //appellantIsAccuser上诉人是否原审原告
         List<String> appellantIsAccuserResults = results.get("appellantIsAccuser");
         validateField(appellantIsAccuserResults, "appellantIsAccuser", true, null);
         Boolean appellantIsAccuser = false;
@@ -78,7 +71,7 @@ public class FinalCivilJudgementInstrumentParser extends BasicInstrumentParser i
         instrument.setJudgeType(judgeType);
 
         //finalConciliation 二审调解结案
-        instrument.setFinalConciliation(true);
+        instrument.setFinalConciliation(true);*/
         //上诉人委托代理人
         //被上诉人委托代理人
         //二审律师缺勤标记

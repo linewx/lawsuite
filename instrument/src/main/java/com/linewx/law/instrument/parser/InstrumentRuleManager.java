@@ -15,7 +15,10 @@ import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,14 +46,30 @@ public class InstrumentRuleManager {
     }
 
     public void add(InstrumentRuleJson instrumentRuleJson) {
-        rules.put(instrumentRuleJson.getType() + instrumentRuleJson.getLevel(),
+        rules.put(instrumentRuleJson.getType() + "-" + instrumentRuleJson.getLevel(),
                 InstrumentRuleConverter.convertInstrumentRuleToParserRule(instrumentRuleJson));
     }
 
     public RuleJson lookup(String instrumentType, String instrumentLevel){
-        RuleJson rule = rules.get(instrumentType + instrumentLevel);
+        RuleJson rule = rules.get(instrumentType + "-"  + instrumentLevel);
         if (rule == null) {
-            return rules.get(instrumentType);
+            for (String oneRule: rules.keySet()) {
+                List<String> ruleKey = Arrays.asList(oneRule.split("-"));
+                if (ruleKey.isEmpty()) {
+                    return null;
+                } if (ruleKey.size() == 1) {
+                    if (ruleKey.get(0).contains(instrumentType)) {
+                        return rules.get(oneRule);
+                    }
+                } else if (ruleKey.size() == 2) {
+                    if (ruleKey.get(0).contains(instrumentType) && ruleKey.get(1).contains(instrumentLevel)) {
+                        return rules.get(oneRule);
+                    }
+                }else {
+                    return null;
+                }
+            }
+            //return rules.get(instrumentType);
         }
         return rule;
     }

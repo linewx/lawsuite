@@ -297,7 +297,7 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
         String reason = "";
 
         List<String> abstractReasonResults = results.get("abstractReason");
-        if (abstractDateResults != null && !abstractDateResults.isEmpty()) {
+        if (abstractReasonResults != null && !abstractReasonResults.isEmpty()) {
             reason = abstractReasonResults.get(0);
             instrument.setReason(reason);
         }

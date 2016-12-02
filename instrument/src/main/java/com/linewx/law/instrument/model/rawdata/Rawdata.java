@@ -49,7 +49,7 @@ public class Rawdata implements java.io.Serializable {
 	@Column(name="Find_List_LY", length = 255)
 	private String ly;
 
-	@Column(name="Find_List_Nr",  length = Integer.MAX_VALUE)
+	@Column(name="Find_List_Nr",  length = 10000)
 	private String nr;
 
 	@Column(name="Find_List_dq", length = 100)

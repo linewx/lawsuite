@@ -7,19 +7,13 @@ import com.linewx.law.instrument.model.Instrument;
 import com.linewx.law.instrument.model.InstrumentService;
 import com.linewx.law.instrument.parser.InstrumentParser;
 import com.linewx.law.instrument.parser.ParserFactory;
-import com.linewx.law.instrument.parser.ParserResult;
 import com.linewx.law.instrument.reader.InstrumentReader;
-import com.linewx.law.parser.NameMapping;
-import org.apache.commons.lang3.text.WordUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -35,6 +29,27 @@ public class InstrumentStatementsParseTask implements Callable<Boolean>{
         this.instrumentReader = instrumentReader;
         this.instrumentService = instrumentService;
         this.auditService = auditService;
+    }
+
+    public void checkInstrumentLength(Instrument instrument) {
+        Class<Instrument> instrumentClass = Instrument.class;
+        Method[] methods = instrumentClass.getDeclaredMethods();
+        for(Method method:methods) {
+            if (method.getName().startsWith("get")) {
+                try {
+                    Object member = method.invoke(instrument);
+                    if (member instanceof String) {
+                        String methodName = method.getName();
+                        if (!methodName.equals("getRawdata") && ((String)member).length() > 255) {
+                            logger.error(method.getName() + "is too long");
+                        }
+
+                    }
+                }catch(Exception e) {
+
+                }
+            }
+        }
     }
 
     @Override
@@ -77,6 +92,9 @@ public class InstrumentStatementsParseTask implements Callable<Boolean>{
                     }*/
 
                     instrumentList.add(instrument);
+                    //todo: remove later, debug only
+                    checkInstrumentLength(instrument);
+                    instrument.setRawdata(String.join("\n", statements));
                     auditService.increase();
 
                 } catch (InstrumentParserException e) {
@@ -94,14 +112,23 @@ public class InstrumentStatementsParseTask implements Callable<Boolean>{
                     }
 
                     instrument.setErrorCode(e.getInstrumentErrorCode().getErrorCode());
-                    instrument.setErrorMesasge(e.getMessage());
+                    instrument.setErrorMessage(e.getMessage());
+                    instrument.setRawdata(String.join("\n", statements));
                     instrumentList.add(instrument);
+                    //todo: remove later, debug only
+                    checkInstrumentLength(instrument);
 
                 } catch (Exception e) {
                     auditService.increaseError();
                     instrument.setErrorCode(InstrumentErrorCode.UNKNOWN.getErrorCode());
-                    instrument.setErrorMesasge(e.getMessage());
+                    instrument.setErrorMessage(e.getMessage());
+                    instrument.setRawdata(String.join("\n", statements));
+
+
                     instrumentList.add(instrument);
+                    //todo: remove later, debug only
+                    checkInstrumentLength(instrument);
+
                     /*List<String> errorMessage = new ArrayList<>();
                     errorMessage.add("");
                     errorMessage.addAll(statements);

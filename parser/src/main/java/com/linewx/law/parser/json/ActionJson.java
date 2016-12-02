@@ -1,5 +1,7 @@
 package com.linewx.law.parser.json;
 
+import com.google.gson.JsonElement;
+
 import java.util.List;
 
 /**
@@ -7,7 +9,7 @@ import java.util.List;
  */
 public class ActionJson {
     private String action;
-    private List<String> parameters;
+    private List<JsonElement> parameters;
 
     public String getAction() {
         return action;
@@ -17,11 +19,11 @@ public class ActionJson {
         this.action = action;
     }
 
-    public List<String> getParameters() {
+    public List<JsonElement> getParameters() {
         return parameters;
     }
 
-    public void setParameters(List<String> parameters) {
+    public void setParameters(List<JsonElement> parameters) {
         this.parameters = parameters;
     }
 }

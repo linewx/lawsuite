@@ -7,7 +7,6 @@ import com.linewx.law.instrument.model.Instrument;
 import com.linewx.law.instrument.model.InstrumentService;
 import com.linewx.law.instrument.parser.InstrumentParser;
 import com.linewx.law.instrument.parser.ParserFactory;
-import com.linewx.law.instrument.parser.ParserResult;
 import com.linewx.law.parser.ParseContext;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -65,7 +64,7 @@ public class InstrumentFileParseTask implements Callable<Boolean> {
             if (!e.getInstrumentErrorCode().equals(InstrumentErrorCode.UNSUPPORTED_TYPE)) {
                 auditService.increaseError();
                 instrument.setErrorCode(e.getInstrumentErrorCode().getErrorCode());
-                instrument.setErrorMesasge(e.getMessage());
+                instrument.setErrorMessage(e.getMessage());
 
             } else {
                 auditService.increaseUnsupport();

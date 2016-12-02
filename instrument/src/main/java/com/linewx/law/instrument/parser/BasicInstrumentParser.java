@@ -121,7 +121,7 @@ abstract public class BasicInstrumentParser extends AbstractInstrumentParser imp
         String reason = "";
 
         List<String> abstractReasonResults = results.get("abstractReason");
-        if (abstractDateResults != null && !abstractDateResults.isEmpty()) {
+        if (abstractReasonResults != null && !abstractReasonResults.isEmpty()) {
             reason = abstractReasonResults.get(0);
             instrument.setReason(reason);
         }

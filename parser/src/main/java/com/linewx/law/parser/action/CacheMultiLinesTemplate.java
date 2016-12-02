@@ -1,5 +1,6 @@
 package com.linewx.law.parser.action;
 
+import com.google.gson.JsonElement;
 import com.linewx.law.parser.ParseContext;
 
 import java.lang.reflect.AccessibleObject;
@@ -12,17 +13,17 @@ import java.util.regex.Pattern;
  */
 public class CacheMultiLinesTemplate implements ActionTemplate{
     @Override
-    public void execute(ParseContext context, List<String> parameters) {
+    public void execute(ParseContext context, List<JsonElement> parameters) {
         if(parameters == null || parameters.size()!=3) {
             return;
         }else {
             //not support embed condition
 
-            String cacheName = parameters.get(0);
+            String cacheName = parameters.get(0).getAsString();
             String cacheFlag = cacheName + "Flag";
 
-            String startCondition = parameters.get(1);
-            String endCondition = parameters.get(2);
+            String startCondition = parameters.get(1).getAsString();
+            String endCondition = parameters.get(2).getAsString();
             Pattern startPattern = Pattern.compile(startCondition);
             Pattern endParttern = Pattern.compile(endCondition);
 

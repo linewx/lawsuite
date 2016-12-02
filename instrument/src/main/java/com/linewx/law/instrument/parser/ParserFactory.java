@@ -17,12 +17,14 @@ public class ParserFactory {
     private static Pattern courtPattern;
     private static Pattern typePattern;
     private static Pattern levelPattern;
+    private static Pattern anotherPattern;
     private static Map<String, InstrumentParser> parser;
 
     static {
         courtPattern = Pattern.compile(".*法院$");
         typePattern = Pattern.compile("(.*书)$");
         levelPattern = Pattern.compile(".*([^字|第|\\d|-]).*号.*");
+        anotherPattern = Pattern.compile(".*[监|申|抗|再|提].*");
 
     }
 
@@ -47,18 +49,28 @@ public class ParserFactory {
     public static InstrumentParser get(String instrumentType, String instrumentLevel, RuleJson ruleJson) {
         String firstMatch = instrumentType + instrumentLevel;
         String secondMatch = instrumentType;
-        if (firstMatch.equals("民事判决书初")) {
+
+        if (instrumentLevel.equals("民事判决书") && instrumentLevel.equals("初")) {
             return new CivilJudgementInstrumentParser(ruleJson);
-        }else if(firstMatch.equals("民事判决书终")) {
+        }
+
+        if (instrumentLevel.equals("民事判决书") && instrumentLevel.equals("终")) {
             return new FinalCivilJudgementInstrumentParser(ruleJson);
-        }else if(firstMatch.equals("民事调解书初")) {
+        }
+
+        if (instrumentLevel.equals("民事调解书") && instrumentLevel.equals("初")) {
             return new FirstCivilConciliationInstrumentParser(ruleJson);
-        }else if(firstMatch.equals("民事调解书终")) {
+        }
+
+        if (instrumentLevel.equals("民事调解书") && instrumentLevel.equals("终")) {
             return new FinalCivilConciliationInstrumentParser(ruleJson);
         }
-        else {
-            return null;
+
+        if ((instrumentType.equals("民事判决书") || instrumentType.equals("民事调解书")) && instrumentLevel.equals("再")) {
+            return new AnotherCivilJudgementInstrumentParser(ruleJson);
         }
+
+        return null;
     }
 
     public static InstrumentParser getFromStatement(List<String> statements) {
@@ -84,7 +96,12 @@ public class ParserFactory {
                 }else {
                     Matcher levelMatcher = levelPattern.matcher(statement);
                     if (levelMatcher.find()) {
-                        level = levelMatcher.group(1);
+                        Matcher anotherMatcher = anotherPattern.matcher(statement);
+                        if (anotherMatcher.matches()) {
+                            level = "再";
+                        }else {
+                            level = levelMatcher.group(1);
+                        }
                         return get(type, level);
                     }
                 }

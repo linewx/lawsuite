@@ -84,21 +84,25 @@ public class Application implements CommandLineRunner{
             return;
         }
 
-        String folderName = commandLine.getOptionValue("d");
+       /* String folderName = commandLine.getOptionValue("d");
         if (folderName != null) {
             parseFiles(folderName);
             return;
-        }
+        }*/
 
         //parseFromDB();
         //parseFromDBSync();
-        storeDataToFile();
+        //storeDataToFile();
 
-        /*ExecutorService executor = Executors.newFixedThreadPool(8);
+        ExecutorService executor = Executors.newFixedThreadPool(8);
         List<Future> futures = new ArrayList<>();
 
         Long startTime = System.currentTimeMillis();
-        InstrumentReader instrumentReader = new InstrumentFilesReader("C:\\Users\\lugan\\Downloads\\law\\tiaojie");
+        String folderName = commandLine.getOptionValue("d");
+        if (folderName == null) {
+            folderName = "C:\\Users\\lugan\\Downloads\\law\\zaishen";
+        }
+        InstrumentReader instrumentReader = new InstrumentFilesReader(folderName);
         for (int i=0; i<8; i++) {
             Future<Boolean> future = executor.submit(new InstrumentStatementsParseTask(
                     instrumentReader,
@@ -107,7 +111,12 @@ public class Application implements CommandLineRunner{
         }
 
         for (Future future : futures) {
-            future.get();
+            try {
+                future.get();
+            }catch(Exception e) {
+                logger.error(e.getMessage());
+            }
+
         }
 
         Long endTime = System.currentTimeMillis();
@@ -130,7 +139,6 @@ public class Application implements CommandLineRunner{
         System.out.print("识别率:" + regPer.toString() + "%.");
         System.out.println();
         executor.shutdown();
-*/
     }
 
     public void parseFile(String fileName) {

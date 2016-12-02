@@ -207,6 +207,14 @@
 				{
 					"action": "setFieldWithReg",
 					"parameters": [
+						"relatedNumber",
+						"cur",
+						"不服[\u4e00-\u9fa5|\\d]*(.*?号)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
 						"judgeType1",
 						"cur",
 						".*(驳回上诉，维持原判).*"

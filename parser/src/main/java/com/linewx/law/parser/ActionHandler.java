@@ -1,5 +1,6 @@
 package com.linewx.law.parser;
 
+import com.google.gson.JsonElement;
 import com.linewx.law.parser.action.ActionTemplate;
 import com.linewx.law.parser.action.CacheMultiLinesTemplate;
 import com.linewx.law.parser.action.setFieldActionTemplate;
@@ -21,7 +22,7 @@ public class ActionHandler {
         actions.put("cacheMultiLines", new CacheMultiLinesTemplate());
     }
 
-    public void execute(ParseContext context, String actionName, List<String> parameters) {
+    public void execute(ParseContext context, String actionName, List<JsonElement> parameters) {
         ActionTemplate action = actions.get(actionName);
         action.execute(context, parameters);
     }
