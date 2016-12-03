@@ -119,6 +119,10 @@ public class FirstCivilJudgementInstrumentParser extends BasicInstrumentParser i
         validateField(costResults, "cost", true, 1);
 
         Long cost = AmountParserUtil.ParseLong(costResults.get(0));
+        if (cost < 50) {
+            throw new InstrumentParserException("case is ignored for cost is lower than 50",
+                    InstrumentErrorCode.IGNORE);
+        }
         instrument.setCost(cost);
 
         //validate discountHalf:受理费减半

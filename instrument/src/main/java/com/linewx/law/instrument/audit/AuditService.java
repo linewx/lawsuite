@@ -13,6 +13,7 @@ public class AuditService {
     private Long processed = 0L;
     private Long unsupported = 0L;
     private Long error = 0L;
+    private Long ignored = 0L;
 
     public Long getProcessed() {
         return processed;
@@ -38,9 +39,19 @@ public class AuditService {
         this.error = error;
     }
 
+    public Long getIgnored() {
+        return ignored;
+    }
+
+    public void setIgnored(Long ignored) {
+        this.ignored = ignored;
+    }
+
     synchronized public void increase() {
         processed = processed + 1;
     }
+
+
 
     synchronized public void increaseError() {
         processed = processed + 1;
@@ -52,10 +63,16 @@ public class AuditService {
         unsupported = unsupported + 1;
     }
 
+    synchronized  public void increaseIgnored() {
+        processed = processed + 1;
+        ignored = ignored + 1;
+    }
+
     synchronized public Map<String, Long> getResult() {
         Map<String, Long> results = new HashMap<>();
         results.put("processed", processed);
         results.put("unsupported", unsupported);
+        results.put("ignored", ignored);
         results.put("error", error);
         return results;
     }

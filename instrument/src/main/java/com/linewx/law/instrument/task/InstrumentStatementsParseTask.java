@@ -19,7 +19,7 @@ import java.util.concurrent.Callable;
 /**
  * Created by luganlin on 11/26/16.
  */
-public class InstrumentStatementsParseTask implements Callable<Boolean>{
+public class InstrumentStatementsParseTask implements Callable<Boolean> {
     private static Logger logger = LoggerFactory.getLogger(InstrumentStatementsParseTask.class);
     private InstrumentReader instrumentReader;
     private InstrumentService instrumentService;
@@ -34,18 +34,18 @@ public class InstrumentStatementsParseTask implements Callable<Boolean>{
     public void checkInstrumentLength(Instrument instrument) {
         Class<Instrument> instrumentClass = Instrument.class;
         Method[] methods = instrumentClass.getDeclaredMethods();
-        for(Method method:methods) {
+        for (Method method : methods) {
             if (method.getName().startsWith("get")) {
                 try {
                     Object member = method.invoke(instrument);
                     if (member instanceof String) {
                         String methodName = method.getName();
-                        if (!methodName.equals("getRawdata") && ((String)member).length() > 255) {
+                        if (!methodName.equals("getRawdata") && ((String) member).length() > 255) {
                             logger.error(method.getName() + "is too long");
                         }
 
                     }
-                }catch(Exception e) {
+                } catch (Exception e) {
 
                 }
             }
@@ -54,14 +54,14 @@ public class InstrumentStatementsParseTask implements Callable<Boolean>{
 
     @Override
     public Boolean call() throws Exception {
-        while(true) {
+        while (true) {
 
             Iterable<List<String>> statementsList = instrumentReader.readBulk(100);
             if (statementsList == null || !statementsList.iterator().hasNext()) {
                 break;
             }
             List<Instrument> instrumentList = new ArrayList<>();
-            for (List<String> statements: statementsList) {
+            for (List<String> statements : statementsList) {
                 Instrument instrument = new Instrument();
                 try {
 
@@ -99,16 +99,13 @@ public class InstrumentStatementsParseTask implements Callable<Boolean>{
 
                 } catch (InstrumentParserException e) {
 
-                    if (!e.getInstrumentErrorCode().equals(InstrumentErrorCode.UNSUPPORTED_TYPE)) {
-                        auditService.increaseError();
-                        /*List<String> errorMessage = new ArrayList<>();
-                        errorMessage.add("");
-                        errorMessage.addAll(statements);
-                        errorMessage.add("error: " + e.getInstrumentErrorCode().name() + "-" + e.getMessage());
-                        logger.error(String.join("\n", errorMessage));*/
-
-                    }else {
+                    if (e.getInstrumentErrorCode().equals(InstrumentErrorCode.UNSUPPORTED_TYPE)) {
                         auditService.increaseUnsupport();
+
+                    } else if (e.getInstrumentErrorCode().equals(InstrumentErrorCode.IGNORE)) {
+                        auditService.increaseIgnored();
+                    } else {
+                        auditService.increaseError();
                     }
 
                     instrument.setErrorCode(e.getInstrumentErrorCode().getErrorCode());

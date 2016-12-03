@@ -131,9 +131,10 @@ public class Application implements CommandLineRunner{
         Long processed = auditService.getProcessed();
         Long error = auditService.getError();
         Long unsupported = auditService.getUnsupported();
+        Long ignored = auditService.getIgnored();
         Long regPer = 0L;
-        if (!processed.equals(unsupported)) {
-            regPer = (processed - error - unsupported) * 100 / (processed - unsupported);
+        if (!processed.equals(unsupported + ignored)) {
+            regPer = (processed - error - unsupported - ignored) * 100 / (processed - unsupported - ignored);
         }
 
         System.out.print("识别率:" + regPer.toString() + "%.");

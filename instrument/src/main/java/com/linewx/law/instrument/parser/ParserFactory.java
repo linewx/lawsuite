@@ -24,7 +24,7 @@ public class ParserFactory {
         courtPattern = Pattern.compile(".*法院$");
         typePattern = Pattern.compile("(.*书)$");
         levelPattern = Pattern.compile(".*([^字|第|\\d|-]).*号.*");
-        anotherPattern = Pattern.compile(".*[监|申|抗|再|提].*");
+        anotherPattern = Pattern.compile(".*[申|抗|再|提].*");
 
     }
 
@@ -50,19 +50,19 @@ public class ParserFactory {
         String firstMatch = instrumentType + instrumentLevel;
         String secondMatch = instrumentType;
 
-        if (instrumentLevel.equals("民事判决书") && instrumentLevel.equals("初")) {
-            return new CivilJudgementInstrumentParser(ruleJson);
+        if (instrumentType.equals("民事判决书") && instrumentLevel.equals("初")) {
+            return new FirstCivilJudgementInstrumentParser(ruleJson);
         }
 
-        if (instrumentLevel.equals("民事判决书") && instrumentLevel.equals("终")) {
+        if (instrumentType.equals("民事判决书") && instrumentLevel.equals("终")) {
             return new FinalCivilJudgementInstrumentParser(ruleJson);
         }
 
-        if (instrumentLevel.equals("民事调解书") && instrumentLevel.equals("初")) {
+        if (instrumentType.equals("民事调解书") && instrumentLevel.equals("初")) {
             return new FirstCivilConciliationInstrumentParser(ruleJson);
         }
 
-        if (instrumentLevel.equals("民事调解书") && instrumentLevel.equals("终")) {
+        if (instrumentType.equals("民事调解书") && instrumentLevel.equals("终")) {
             return new FinalCivilConciliationInstrumentParser(ruleJson);
         }
 

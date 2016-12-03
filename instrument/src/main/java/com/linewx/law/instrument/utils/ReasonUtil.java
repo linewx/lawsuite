@@ -38,7 +38,10 @@ public class ReasonUtil{
         }else {
             if (secondaryIndex.containsKey(source)) {
                 return secondaryIndex.get(source);
-            }else {
+            }else if(!source.endsWith("纠纷")) {
+                return getReasonNumber(source + "纠纷");
+            }
+            else {
                 throw new RuntimeException("invalid reason to identify reason number");
             }
         }
