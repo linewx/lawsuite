@@ -175,6 +175,11 @@ public class FirstCivilJudgementInstrumentParser extends BasicInstrumentParser i
         instrument.setAccuserAmountPer(amountPerInformation.getAccuserAmountPer());
         instrument.setDefendantWinPer(amountPerInformation.getDefendantAmountPer());
 
+        /*Long margin = Math.abs(amountPerInformation.getAccuserAmountPer() - costPerInformation.getAccuserWinPer());
+        if (margin > 10) {
+            throw new InstrumentParserException("margin between amount and cost percentage is too large");
+        }*/
+
         //validate firstConciliation:一审调解结案
 
         //validate accuserProperty:原告企业类别和行业属性
@@ -326,7 +331,7 @@ public class FirstCivilJudgementInstrumentParser extends BasicInstrumentParser i
             return new CostPerInformation(50L, 50L);
         }
 
-        Long costOnAccuserPer = costOnAccuser * 100 / totalCost;
+        Long costOnAccuserPer = 100 - costOnAccuser * 100 / totalCost;
         Long costOnDefendantPer = 100 - costOnAccuser;
         return new CostPerInformation(costOnAccuserPer, costOnDefendantPer);
     }

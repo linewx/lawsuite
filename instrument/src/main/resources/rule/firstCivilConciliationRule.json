@@ -114,7 +114,7 @@
 					"parameters": [
 						"accuserLawyerOffice",
 						"cur",
-						"([\u4e00-\u9fa5]*律[师,所]事务所?)"
+						["([\u4e00-\u9fa5]*律[师,所]事务所?)","([\u4e00-\u9fa5]*法律援助中心?)"]
 					]
 				}
 			]
@@ -160,7 +160,7 @@
 					"parameters": [
 						"defendantLawyerOffice",
 						"cur",
-						"([\u4e00-\u9fa5]*律[师,所]事务所?)"
+						["([\u4e00-\u9fa5]*律[师,所]事务所?)","([\u4e00-\u9fa5]*法律援助中心?)"]
 					]
 				}
 			]

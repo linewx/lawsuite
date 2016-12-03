@@ -8,10 +8,14 @@ import java.util.regex.Pattern;
  * Created by luganlin on 11/22/16.
  */
 public class AmountParserUtil {
+    public static void main(String ...argv) {
+        System.out.println(ParseLong("一亿"));
+    }
+
     private static Pattern amountPattern;
     private static Map<Character, Character> numberMapping = new HashMap<>();
     static {
-        amountPattern = Pattern.compile("([\\d|，|〇|一|二|三|四|五|六|七|八|九|十|百|千|万|亿]+)元");
+        amountPattern = Pattern.compile("([\\d|，.|点|〇|一|二|三|四|五|六|七|八|九|十|百|千|万|亿]+)元");
         numberMapping.put('〇', '0');
         numberMapping.put('一', '1');
         numberMapping.put('二', '2');
@@ -22,6 +26,7 @@ public class AmountParserUtil {
         numberMapping.put('七', '7');
         numberMapping.put('八', '8');
         numberMapping.put('九', '9');
+        numberMapping.put('点', '.');
     }
 
 
@@ -50,8 +55,12 @@ public class AmountParserUtil {
         return numbers;
     }
 
-    //一亿六千七百万八千六十元
     public static Long ParseLong(String number) {
+        return ParseDouble(number).longValue();
+    }
+
+    //一亿六千七百万八千六十元
+    public static Double ParseDouble(String number) {
         if(number.contains("亿")) {
             String[] numbers = number.split("亿");
             if (numbers.length > 2 || number.length() == 0)  {
@@ -64,7 +73,7 @@ public class AmountParserUtil {
                 rightNumber = numbers[1];
             }
             
-            return ParseLong(leftNumber) * 100000000L + ParseLong(rightNumber);
+            return ParseDouble(leftNumber) * 100000000L + ParseDouble(rightNumber);
         }
 
         if(number.contains("万")) {
@@ -79,7 +88,7 @@ public class AmountParserUtil {
                 rightNumber = numbers[1];
             }
 
-            return ParseLong(leftNumber) * 10000L + ParseLong(rightNumber);
+            return ParseDouble(leftNumber) * 10000L + ParseDouble(rightNumber);
         }
 
         if(number.contains("千")) {
@@ -94,7 +103,7 @@ public class AmountParserUtil {
                 rightNumber = numbers[1];
             }
 
-            return ParseLong(leftNumber) * 1000L + ParseLong(rightNumber);
+            return ParseDouble(leftNumber) * 1000L + ParseDouble(rightNumber);
         }
 
         if(number.contains("百")) {
@@ -109,7 +118,7 @@ public class AmountParserUtil {
                 rightNumber = numbers[1];
             }
 
-            return ParseLong(leftNumber) * 100L + ParseLong(rightNumber);
+            return ParseDouble(leftNumber) * 100L + ParseDouble(rightNumber);
         }
 
         if(number.contains("十")) {
@@ -124,7 +133,7 @@ public class AmountParserUtil {
                 rightNumber = numbers[1];
             }
 
-            return ParseLong(leftNumber) * 10L + ParseLong(rightNumber);
+            return ParseDouble(leftNumber) * 10L + ParseDouble(rightNumber);
         }
 
         if(number.contains("，")) {
@@ -139,14 +148,13 @@ public class AmountParserUtil {
                 rightNumber = numbers[1];
             }
 
-            return ParseLong(leftNumber) * 1000L + ParseLong(rightNumber);
+            return ParseDouble(leftNumber) * 1000L + ParseDouble(rightNumber);
         }
-
 
         return transfer(number);
     }
 
-    public static Long transfer(String originNumber) {
+    public static Double transfer(String originNumber) {
         StringBuilder targetNumber = new StringBuilder();
 
         for (int i=0; i<originNumber.length(); i++) {
@@ -154,6 +162,6 @@ public class AmountParserUtil {
             targetNumber.append(numberMapping.getOrDefault(currentChar, currentChar));
         }
 
-        return Long.parseLong(targetNumber.toString());
+        return Double.parseDouble(targetNumber.toString());
     }
 }
