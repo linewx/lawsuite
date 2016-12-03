@@ -1,6 +1,5 @@
 package com.linewx.law.parser;
 
-import com.linewx.law.parser.ParseContext;
 import com.linewx.law.parser.json.TransitionJson;
 
 import java.util.regex.Pattern;
@@ -13,6 +12,11 @@ public class Transition {
     private String target;
     private Pattern preStateConditionPattern;
     private Pattern curStateConditionPattern;
+    private String preProcessor;
+
+
+
+    private String curProcessor;
 
     public String getSource() {
         return source;
@@ -46,6 +50,22 @@ public class Transition {
         this.curStateConditionPattern = curStateConditionPattern;
     }
 
+    public String getPreProcessor() {
+        return preProcessor;
+    }
+
+    public void setPreProcessor(String preProcessor) {
+        this.preProcessor = preProcessor;
+    }
+
+    public String getCurProcessor() {
+        return curProcessor;
+    }
+
+    public void setCurProcessor(String curProcessor) {
+        this.curProcessor = curProcessor;
+    }
+
     public Transition(TransitionJson transitionJson) {
         this.source = transitionJson.getSource();
         this.target = transitionJson.getTarget();
@@ -61,6 +81,9 @@ public class Transition {
         }else {
             this.curStateConditionPattern = Pattern.compile(curStateCondition);
         }
+
+        this.preProcessor = transitionJson.getCondition().getPreProcessor();
+        this.curProcessor = transitionJson.getCondition().getCurProcessor();
     }
 
     public Boolean match(ParseContext context) {
@@ -69,13 +92,21 @@ public class Transition {
         if (preStateConditionPattern == null) {
             preMatch = true;
         }else {
-            preMatch = preStateConditionPattern.matcher(context.getPreStatement()).matches();
+            String preStatement = context.getPreStatement();
+            if (preProcessor != null) {
+                preStatement = ProcessorHandler.execute(preProcessor, preStatement);
+            }
+            preMatch = preStateConditionPattern.matcher(preStatement).matches();
         }
 
         if (curStateConditionPattern == null) {
             curMatch = true;
         }else {
-            curMatch = curStateConditionPattern.matcher(context.getCurrentStatement()).matches();
+            String currentStatement = context.getCurrentStatement();
+            if (curProcessor != null) {
+                currentStatement = ProcessorHandler.execute(curProcessor, currentStatement);
+            }
+            curMatch = curStateConditionPattern.matcher(currentStatement).matches();
         }
         return preMatch && curMatch;
     }
