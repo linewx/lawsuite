@@ -62,12 +62,6 @@ public class Instrument implements java.io.Serializable {
 	private Long defendantAmountPer;  //被告抗辩获支持率
 	private Boolean firstConciliation;  //一审调解结案
 
-	private int errorCode;
-	private String errorMessage;
-
-	@Column(columnDefinition = "TEXT")
-	private String rawdata;
-
 	//二审
 	private String relatedNumber; //关联案件组
 	private Boolean appellantIsAccuser; //上诉人是否原审原告
@@ -77,6 +71,18 @@ public class Instrument implements java.io.Serializable {
 	//被上诉人委托代理人
 	//二审律师缺勤标记
 	//二审缺勤率
+
+
+	//metadata
+	private String sourceType;
+	private Long sourceId;
+	private String sourceName;
+	private int errorCode;
+	private String errorMessage;
+
+	@Column(columnDefinition = "TEXT")
+	private String rawdata;
+
 
 
 
@@ -444,4 +450,30 @@ public class Instrument implements java.io.Serializable {
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
 	}
+
+	public String getSourceType() {
+		return sourceType;
+	}
+
+	public void setSourceType(String sourceType) {
+		this.sourceType = sourceType;
+	}
+
+	public Long getSourceId() {
+		return sourceId;
+	}
+
+	public void setSourceId(Long sourceId) {
+		this.sourceId = sourceId;
+	}
+
+	public String getSourceName() {
+		return sourceName;
+	}
+
+	public void setSourceName(String sourceName) {
+		this.sourceName = sourceName;
+	}
+
+
 }

@@ -9,6 +9,7 @@ import java.util.List;
 public interface InstrumentReader {
     //List<String> read();
 
-
     Iterable<List<String>> readBulk(int bulkSize);
+
+    Iterable<InstrumentWithMeta> readBulkWithMeta(int bulkSize);
 }
