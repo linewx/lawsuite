@@ -14,9 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by lugan on 11/23/2016.
@@ -35,7 +33,15 @@ public class FinalCivilJudgementInstrumentParser extends BasicInstrumentParser i
         //relatedNumber关联案件组
         List<String> relatedNumberResults = results.get("relatedNumber");
         validateField(relatedNumberResults, "relatedNumberResults", true, null);
-        instrument.setRelatedNumber(relatedNumberResults.get(0));
+        Set<String> relatedNumberSet = new LinkedHashSet<>(relatedNumberResults);
+        relatedNumberSet.removeIf(oneNumber -> oneNumber.equals(instrument.getNumber()));
+        List<String> relatedNumbers = new ArrayList<>();
+
+        for (int i=0; i<Math.min(relatedNumberSet.size(),3); i++) {
+            relatedNumbers.add(relatedNumberResults.get(i));
+        }
+        validateField(relatedNumbers, "relatedNumberResults", true, null);
+        instrument.setRelatedNumber(String.join("|", relatedNumbers));
 
 
         //appellantIsAccuser上诉人是否原审原告

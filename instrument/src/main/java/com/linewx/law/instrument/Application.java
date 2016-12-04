@@ -3,15 +3,18 @@ package com.linewx.law.instrument;
 import com.google.gson.Gson;
 import com.linewx.law.instrument.audit.AuditService;
 import com.linewx.law.instrument.json.InstrumentRuleJson;
+import com.linewx.law.instrument.model.Instrument;
 import com.linewx.law.instrument.model.InstrumentService;
 import com.linewx.law.instrument.model.rawdata.Rawdata;
 import com.linewx.law.instrument.model.rawdata.RawdataService;
 import com.linewx.law.instrument.parser.InstrumentRuleManager;
+import com.linewx.law.instrument.reader.InstrumentDBReader;
 import com.linewx.law.instrument.reader.InstrumentFilesReader;
 import com.linewx.law.instrument.reader.InstrumentReader;
 import com.linewx.law.instrument.task.InstrumentFileParseTask;
 import com.linewx.law.instrument.task.InstrumentDBStatementsParseTask;
 import com.linewx.law.instrument.task.InstrumentStatementsParseTask;
+import com.linewx.law.instrument.task.InstrumentStatementsWithMetaParseTask;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,18 +96,23 @@ public class Application implements CommandLineRunner{
         //parseFromDB();
         //parseFromDBSync();
         //storeDataToFile();
-
-        ExecutorService executor = Executors.newFixedThreadPool(8);
-        List<Future> futures = new ArrayList<>();
-
-        Long startTime = System.currentTimeMillis();
         String folderName = commandLine.getOptionValue("d");
         if (folderName == null) {
             folderName = "C:\\Users\\lugan\\Downloads\\law\\zaishen";
         }
-        InstrumentReader instrumentReader = new InstrumentFilesReader(folderName);
+
+        //InstrumentReader instrumentReader = new InstrumentFilesReader(folderName);
+        InstrumentReader instrumentReader = new InstrumentDBReader(rawdataService);
+        parse(instrumentReader);
+    }
+
+    public void parse(InstrumentReader instrumentReader) {
+        ExecutorService executor = Executors.newFixedThreadPool(8);
+        List<Future> futures = new ArrayList<>();
+
+        Long startTime = System.currentTimeMillis();
         for (int i=0; i<8; i++) {
-            Future<Boolean> future = executor.submit(new InstrumentStatementsParseTask(
+            Future<Boolean> future = executor.submit(new InstrumentStatementsWithMetaParseTask(
                     instrumentReader,
                     instrumentService, auditService));
             futures.add(future);
@@ -140,6 +148,7 @@ public class Application implements CommandLineRunner{
         System.out.print("识别率:" + regPer.toString() + "%.");
         System.out.println();
         executor.shutdown();
+
     }
 
     public void parseFile(String fileName) {
@@ -152,12 +161,6 @@ public class Application implements CommandLineRunner{
         }
     }
 
-    public void parseFromDBSync() throws Exception {
-        /*Iterable<Rawdata> rawdatas = rawdataService.getData(1);
-        InstrumentDBStatementsParseTask instrumentStatementsParseTask =
-                new InstrumentDBStatementsParseTask(rawdatas, instrumentService, auditService);
-        instrumentStatementsParseTask.call();*/
-    }
 
     public void storeDataToFile() throws Exception{
         int currentPage = 0;
@@ -183,97 +186,6 @@ public class Application implements CommandLineRunner{
         }
     }
 
-    public void parseFromDB() throws Exception{
-        ExecutorService executor = Executors.newFixedThreadPool(8);
-        List<Future> futures = new ArrayList<>();
 
-        int currentPage = 0;
-        while(true) {
-            Iterable<Rawdata> rawdatas= rawdataService.getData(currentPage);
-            if (rawdatas == null || !rawdatas.iterator().hasNext()) {
-                break;
-            }else {
-                Future<Boolean> future = executor.submit(new InstrumentDBStatementsParseTask(rawdatas, instrumentService, auditService));
-                futures.add(future);
-            }
-
-            currentPage = currentPage + 1;
-
-        }
-
-        for (Future future : futures) {
-            future.get();
-        }
-
-        Map<String, Long> auditResult = auditService.getResult();
-
-        for (Map.Entry<String, Long> entry: auditResult.entrySet()) {
-            System.out.print(entry.getKey() + ":" + entry.getValue() + ".");
-        }
-
-        Long processed = auditService.getProcessed();
-        Long error = auditService.getError();
-        Long unsupported = auditService.getUnsupported();
-        Long regPer = (processed - error - unsupported) * 100 / (processed - unsupported);
-
-        System.out.print("识别率:" + regPer.toString() + "%.");
-        System.out.println();
-        executor.shutdown();
-
-    }
-    public void parseFiles(String folder) throws Exception {
-
-        ExecutorService executor = Executors.newFixedThreadPool(8);
-        File dir = new File(folder);
-
-        List<Future> futures = new ArrayList<>();
-        for (File file : dir.listFiles()) {
-            Future<Boolean> future = executor.submit(new InstrumentFileParseTask(file, instrumentService, auditService));
-            futures.add(future);
-        }
-
-        for (Future future : futures) {
-            future.get();
-        }
-
-        Map<String, Long> auditResult = auditService.getResult();
-
-        for (Map.Entry<String, Long> entry: auditResult.entrySet()) {
-            System.out.print(entry.getKey() + ":" + entry.getValue() + ".");
-        }
-
-        Long processed = auditService.getProcessed();
-        Long error = auditService.getError();
-        Long unsupported = auditService.getUnsupported();
-        Long regPer = (processed - error - unsupported) * 100 / (processed - unsupported);
-
-        System.out.print("识别率:" + regPer.toString() + "%.");
-        System.out.println();
-        executor.shutdown();
-    }
-
-    public static InstrumentRuleJson loadRule(String ruleLocation) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(ruleLocation));
-        Gson gson = new Gson();
-        InstrumentRuleJson rule = gson.fromJson(bufferedReader, InstrumentRuleJson.class);
-        return rule;
-    }
-
-    /*public static void loadRule() {
-        try {
-            ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-            InputStream is = classloader.getResourceAsStream("firstCivilAjudgementRule.json");
-            BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(is, "UTF8"));
-            Gson gson = new Gson();
-            InstrumentRuleJson rule = gson.fromJson(bufferedReader, InstrumentRuleJson.class);
-            InstrumentRuleManager.add(rule);
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-
-    }*/
 
 }

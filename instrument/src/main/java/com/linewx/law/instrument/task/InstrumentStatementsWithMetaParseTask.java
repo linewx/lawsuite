@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -65,10 +66,7 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
                 Instrument instrument = new Instrument();
 
                 //populate source info
-                instrument.setSourceType(statementsWithMeta.getSourceType());
-                instrument.setSourceId(statementsWithMeta.getSourceId());
-                instrument.setSourceName(statementsWithMeta.getSourceName());
-                instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
+
 
                 try {
                     List<String> statements = statementsWithMeta.getContent();
@@ -98,6 +96,11 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
 
                     }*/
 
+                    instrument.setSourceType(statementsWithMeta.getSourceType());
+                    instrument.setSourceId(statementsWithMeta.getSourceId());
+                    instrument.setSourceName(statementsWithMeta.getSourceName());
+                    instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
+
                     instrumentList.add(instrument);
                     //todo: remove later, debug only
                     checkInstrumentLength(instrument);
@@ -116,6 +119,10 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
 
                     instrument.setErrorCode(e.getInstrumentErrorCode().getErrorCode());
                     instrument.setErrorMessage(e.getMessage());
+                    instrument.setSourceType(statementsWithMeta.getSourceType());
+                    instrument.setSourceId(statementsWithMeta.getSourceId());
+                    instrument.setSourceName(statementsWithMeta.getSourceName());
+                    instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
                     instrumentList.add(instrument);
                     //todo: remove later, debug only
                     checkInstrumentLength(instrument);
@@ -124,8 +131,10 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
                     auditService.increaseError();
                     instrument.setErrorCode(InstrumentErrorCode.UNKNOWN.getErrorCode());
                     instrument.setErrorMessage(e.getMessage());
-
-
+                    instrument.setSourceType(statementsWithMeta.getSourceType());
+                    instrument.setSourceId(statementsWithMeta.getSourceId());
+                    instrument.setSourceName(statementsWithMeta.getSourceName());
+                    instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
                     instrumentList.add(instrument);
                     //todo: remove later, debug only
                     checkInstrumentLength(instrument);
@@ -137,7 +146,26 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
                     logger.error(String.join("\n", errorMessage));*/
                 }
             }
-            instrumentService.save(instrumentList);
+            try {
+                instrumentService.save(instrumentList);
+            }catch (Exception e) {
+                for (Instrument instrument:instrumentList) {
+                    try {
+                        instrumentService.save(instrument);
+                    }catch (Exception e2) {
+                        e2.printStackTrace();
+                    }
+
+                }
+                e.printStackTrace();
+            }
+
+            Map<String, Long> auditResult = auditService.getResult();
+
+            for (Map.Entry<String, Long> entry: auditResult.entrySet()) {
+                System.out.print(entry.getKey() + ":" + entry.getValue() + ".");
+            }
+            System.out.println();
         }
         return true;
     }

@@ -8,9 +8,9 @@ import java.util.regex.Pattern;
  * Created by luganlin on 11/22/16.
  */
 public class AmountParserUtil {
-    public static void main(String ...argv) {
+    /*public static void main(String ...argv) {
         System.out.println(ParseLong("一亿"));
-    }
+    }*/
 
     private static Pattern amountPattern;
     private static Map<Character, Character> numberMapping = new HashMap<>();

@@ -9,7 +9,7 @@ import javax.persistence.*;
 
 @SuppressWarnings("serial")
 @Entity
-@Table(name = "Find_List_Zaisheng")
+@Table(name = "Find_List")
 public class Rawdata implements java.io.Serializable {
 
 	@Column(name = "ID")

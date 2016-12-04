@@ -4,10 +4,7 @@ import com.linewx.law.instrument.model.Instrument;
 import com.linewx.law.parser.ParseContext;
 import com.linewx.law.parser.json.RuleJson;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by lugan on 11/23/2016.
@@ -26,9 +23,15 @@ public class AnotherCivilJudgementInstrumentParser extends BasicInstrumentParser
         //relatedNumber关联案件组
         List<String> relatedNumberResults = results.get("relatedNumber");
         validateField(relatedNumberResults, "relatedNumberResults", true, null);
-        Set<String> relatedNumberSet = new HashSet<>(relatedNumberResults);
+        Set<String> relatedNumberSet = new LinkedHashSet<>(relatedNumberResults);
         relatedNumberSet.removeIf(oneNumber -> oneNumber.equals(instrument.getNumber()));
-        instrument.setRelatedNumber(String.join("|", relatedNumberSet));
+        List<String> relatedNumbers = new ArrayList<>();
+
+        for (int i=0; i<Math.min(relatedNumberSet.size(),3); i++) {
+            relatedNumbers.add(relatedNumberResults.get(i));
+        }
+        validateField(relatedNumbers, "relatedNumberResults", true, null);
+        instrument.setRelatedNumber(String.join("|", relatedNumbers));
 
 
        /* //appellantIsAccuser上诉人是否原审原告

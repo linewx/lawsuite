@@ -60,7 +60,7 @@ public class ReasonProcessor implements Processor {
             ClassLoader classloader = Thread.currentThread().getContextClassLoader();
             InputStream is = classloader.getResourceAsStream("reason.csv");
             BufferedReader bufferedReader = new BufferedReader(
-                    new InputStreamReader(is));
+                    new InputStreamReader(is, "UTF8"));
             String strLine;
             while ((strLine = bufferedReader.readLine()) != null) {
                 // Print the content on the console

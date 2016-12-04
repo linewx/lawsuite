@@ -40,7 +40,7 @@ public class InstrumentRuleManager {
                 InstrumentRuleJson instrumentRuleJson = gson.fromJson(bufferedReader, InstrumentRuleJson.class);
                 add(instrumentRuleJson);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
