@@ -14,10 +14,10 @@ public class Rawdata implements java.io.Serializable {
 
 	@Column(name = "ID")
 	@Id
-	private long id;
+	private Long id;
 
 	@Column(name = "Find_List_id")
-	private long listId;
+	private Long listId;
 
 	@Column(name= "Find_List_No", length = 240)
 	private String no;
@@ -29,7 +29,7 @@ public class Rawdata implements java.io.Serializable {
 	private String mc;
 
 	@Column(name="Find_List_mk")
-	private double mk;
+	private Double mk;
 
 	@Column(name="Find_List_pjly")
 	private String pjly;
@@ -55,11 +55,11 @@ public class Rawdata implements java.io.Serializable {
 	@Column(name="Find_List_dq", length = 100)
 	private String dq;
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -87,11 +87,11 @@ public class Rawdata implements java.io.Serializable {
 		this.mc = mc;
 	}
 
-	public double getMk() {
+	public Double getMk() {
 		return mk;
 	}
 
-	public void setMk(double mk) {
+	public void setMk(Double mk) {
 		this.mk = mk;
 	}
 
@@ -159,11 +159,11 @@ public class Rawdata implements java.io.Serializable {
 		this.dq = dq;
 	}
 
-	public long getListId() {
+	public Long getListId() {
 		return listId;
 	}
 
-	public void setListId(long listId) {
+	public void setListId(Long listId) {
 		this.listId = listId;
 	}
 }

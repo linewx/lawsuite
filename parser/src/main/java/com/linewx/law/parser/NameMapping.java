@@ -9,12 +9,12 @@ import java.util.*;
 public class NameMapping {
     public static void main(String argv[]) {
 
-        /*for(Map.Entry<String,String> name: names.entrySet()) {
-            System.out.println(MessageFormat.format("System.out.println( \"{0}:\" + this);  //"  + name.getKey() + ":" + name.getValue(), name.getValue()));
-        }*/
-        String a = "test-";
+        for(Map.Entry<String,String> name: names.entrySet()) {
+            System.out.println(name.getKey() + ":" + name.getValue());
+        }
+        /*String a = "test-";
         String[] te = a.split("-");
-        System.out.println(a.contains(""));
+        System.out.println(a.contains(""));*/
     }
 
     public static Map<String, String> names = new LinkedHashMap<>();

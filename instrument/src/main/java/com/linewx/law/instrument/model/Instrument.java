@@ -448,7 +448,11 @@ public class Instrument implements java.io.Serializable {
 	}
 
 	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
+		if (errorMessage != null && errorMessage.length() > 200) {
+			this.errorMessage = errorMessage.substring(0, 200);
+		}else {
+			this.errorMessage = errorMessage;
+		}
 	}
 
 	public String getSourceType() {
