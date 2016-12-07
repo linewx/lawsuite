@@ -1,5 +1,7 @@
 package com.linewx.law.parser;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -9,9 +11,7 @@ import java.util.*;
 public class NameMapping {
     public static void main(String argv[]) {
 
-        for(Map.Entry<String,String> name: names.entrySet()) {
-            System.out.println(name.getKey() + ":" + name.getValue());
-        }
+        String.join("\n", "");
         /*String a = "test-";
         String[] te = a.split("-");
         System.out.println(a.contains(""));*/

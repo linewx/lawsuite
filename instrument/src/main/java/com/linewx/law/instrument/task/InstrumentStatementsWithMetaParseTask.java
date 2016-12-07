@@ -33,7 +33,7 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
         this.auditService = auditService;
     }
 
-    public void checkInstrumentLength(Instrument instrument) {
+   /* public void checkInstrumentLength(Instrument instrument) {
         Class<Instrument> instrumentClass = Instrument.class;
         Method[] methods = instrumentClass.getDeclaredMethods();
         for (Method method : methods) {
@@ -52,7 +52,7 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
                 }
             }
         }
-    }
+    }*/
 
     @Override
     public Boolean call() throws Exception {
@@ -62,20 +62,19 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
                 break;
             }
             List<Instrument> instrumentList = new ArrayList<>();
-            for (InstrumentWithMeta statementsWithMeta : statementsList) {
-                Instrument instrument = new Instrument();
+            try {
+                for (InstrumentWithMeta statementsWithMeta : statementsList) {
 
-                //populate source info
+                    Instrument instrument = new Instrument();
+                    //populate source info
+                    try {
+                        List<String> statements = statementsWithMeta.getContent();
+                        InstrumentParser parser = ParserFactory.getFromStatement(statements);
+                        if (parser == null) {
+                            throw new InstrumentParserException(InstrumentErrorCode.UNSUPPORTED_TYPE);
+                        }
 
-
-                try {
-                    List<String> statements = statementsWithMeta.getContent();
-                    InstrumentParser parser = ParserFactory.getFromStatement(statements);
-                    if (parser == null) {
-                        throw new InstrumentParserException(InstrumentErrorCode.UNSUPPORTED_TYPE);
-                    }
-
-                    instrument = parser.parse(statements);
+                        instrument = parser.parse(statements);
                     /*List<String> debugMessage = new ArrayList<>();
                     if (instrument != null) {
                         List<String> instrumentContent = new ArrayList<>();
@@ -96,69 +95,76 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
 
                     }*/
 
-                    instrument.setSourceType(statementsWithMeta.getSourceType());
-                    instrument.setSourceId(statementsWithMeta.getSourceId());
-                    instrument.setSourceName(statementsWithMeta.getSourceName());
-                    instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
+                        instrument.setSourceType(statementsWithMeta.getSourceType());
+                        instrument.setSourceId(statementsWithMeta.getSourceId());
+                        instrument.setSourceName(statementsWithMeta.getSourceName());
+                        instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
 
-                    instrumentList.add(instrument);
-                    //todo: remove later, debug only
-                    checkInstrumentLength(instrument);
-                    auditService.increase();
+                        instrumentList.add(instrument);
+                        //todo: remove later, debug only
+                        //checkInstrumentLength(instrument);
+                        auditService.increase();
 
-                } catch (InstrumentParserException e) {
+                    } catch (InstrumentParserException e) {
+                        if (e.getInstrumentErrorCode().equals(InstrumentErrorCode.UNSUPPORTED_TYPE)) {
+                            auditService.increaseUnsupport();
 
-                    if (e.getInstrumentErrorCode().equals(InstrumentErrorCode.UNSUPPORTED_TYPE)) {
-                        auditService.increaseUnsupport();
+                        } else if (e.getInstrumentErrorCode().equals(InstrumentErrorCode.IGNORE)) {
+                            auditService.increaseIgnored();
+                        } else {
+                            auditService.increaseError();
+                        }
 
-                    } else if (e.getInstrumentErrorCode().equals(InstrumentErrorCode.IGNORE)) {
-                        auditService.increaseIgnored();
-                    } else {
+                        instrument.setErrorCode(e.getInstrumentErrorCode().getErrorCode());
+                        instrument.setErrorMessage(e.getMessage());
+                        instrument.setSourceType(statementsWithMeta.getSourceType());
+                        instrument.setSourceId(statementsWithMeta.getSourceId());
+                        instrument.setSourceName(statementsWithMeta.getSourceName());
+                        instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
+                        instrumentList.add(instrument);
+                        //todo: remove later, debug only
+                        //checkInstrumentLength(instrument);
+
+                    } catch (Exception e) {
                         auditService.increaseError();
-                    }
-
-                    instrument.setErrorCode(e.getInstrumentErrorCode().getErrorCode());
-                    instrument.setErrorMessage(e.getMessage());
-                    instrument.setSourceType(statementsWithMeta.getSourceType());
-                    instrument.setSourceId(statementsWithMeta.getSourceId());
-                    instrument.setSourceName(statementsWithMeta.getSourceName());
-                    instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
-                    instrumentList.add(instrument);
-                    //todo: remove later, debug only
-                    checkInstrumentLength(instrument);
-
-                } catch (Exception e) {
-                    auditService.increaseError();
-                    instrument.setErrorCode(InstrumentErrorCode.UNKNOWN.getErrorCode());
-                    instrument.setErrorMessage(e.getMessage());
-                    instrument.setSourceType(statementsWithMeta.getSourceType());
-                    instrument.setSourceId(statementsWithMeta.getSourceId());
-                    instrument.setSourceName(statementsWithMeta.getSourceName());
-                    instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
-                    instrumentList.add(instrument);
-                    //todo: remove later, debug only
-                    checkInstrumentLength(instrument);
+                        instrument.setErrorCode(InstrumentErrorCode.UNKNOWN.getErrorCode());
+                        instrument.setErrorMessage(e.getMessage());
+                        instrument.setSourceType(statementsWithMeta.getSourceType());
+                        instrument.setSourceId(statementsWithMeta.getSourceId());
+                        instrument.setSourceName(statementsWithMeta.getSourceName());
+                        instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
+                        instrumentList.add(instrument);
+                        //todo: remove later, debug only
+                        //checkInstrumentLength(instrument);
 
                     /*List<String> errorMessage = new ArrayList<>();
                     errorMessage.add("");
                     errorMessage.addAll(statements);
                     errorMessage.add("error: " +  e.getMessage());
                     logger.error(String.join("\n", errorMessage));*/
-                }
-            }
-            try {
-                instrumentService.save(instrumentList);
-            }catch (Exception e) {
-                for (Instrument instrument:instrumentList) {
-                    try {
-                        instrumentService.save(instrument);
-                    }catch (Exception e2) {
-                        e2.printStackTrace();
                     }
-
                 }
+                try {
+                    instrumentService.save(instrumentList);
+                }catch (Exception e) {
+                    for (Instrument instrument:instrumentList) {
+                        try {
+                            instrumentService.save(instrument);
+                        }catch (Exception e2) {
+                            String rawdata = instrument.getRawdata();
+                            if (rawdata != null) {
+                                logger.error("can not save instrument parse result:\n" + rawdata);
+                            }
+                            e2.printStackTrace();
+                        }
+                    }
+                    e.printStackTrace();
+                }
+            }catch (Exception e) {
+                logger.error(e.getMessage());
                 e.printStackTrace();
             }
+
 
             Map<String, Long> auditResult = auditService.getResult();
 
