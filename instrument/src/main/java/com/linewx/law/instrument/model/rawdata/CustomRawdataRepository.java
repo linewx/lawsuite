@@ -6,5 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 public interface CustomRawdataRepository{
-    List<Object> ;
+    List<Long> getIdsByRowNumbers(List<Long> rowNumbers);
+
+    List<Rawdata> findAll(Long start, Long end, Integer limit);
 }

@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface RawdataRepository extends JpaRepository<Rawdata, Long> {
+public interface RawdataRepository extends JpaRepository<Rawdata, Long>,CustomRawdataRepository{
 
 }

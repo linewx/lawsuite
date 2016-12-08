@@ -37,4 +37,12 @@ public class RawdataService {
 		return rawdatas;
 	}
 
+	public List<Rawdata> getData(Long start, Long end, int limit) {
+		return rawdataRepository.findAll(start, end, limit);
+	}
+
+	public List<Long> getIdsByRowNumbers(List<Long> rowNumbers) {
+		return rawdataRepository.getIdsByRowNumbers(rowNumbers);
+	}
+
 }
