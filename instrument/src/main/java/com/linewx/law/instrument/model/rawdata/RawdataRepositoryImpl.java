@@ -19,7 +19,7 @@ public class RawdataRepositoryImpl implements CustomRawdataRepository {
     @Autowired
     private EntityManager entityManager;
 
-    private static final String QUERY_IDS_BY_ROW_NUMBER_SQL = "select id from (select row_number() over (order by id) as rownum,id from Find_liset) as Find_list where rownum in (:rownumbers) order by id";
+    private static final String QUERY_IDS_BY_ROW_NUMBER_SQL = "select id from (select row_number() over (order by id) as rownum,id from Find_list) as Find_list where rownum in (:rownumbers) order by id";
     @Override
     public List<Long> getIdsByRowNumbers(List<Long> rowNumbers) {
         Query query = entityManager.createNativeQuery(QUERY_IDS_BY_ROW_NUMBER_SQL);
