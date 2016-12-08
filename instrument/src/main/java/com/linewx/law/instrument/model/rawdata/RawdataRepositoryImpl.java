@@ -1,17 +1,13 @@
 package com.linewx.law.instrument.model.rawdata;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
-import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.math.BigInteger;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -23,7 +19,7 @@ public class RawdataRepositoryImpl implements CustomRawdataRepository {
     @Autowired
     private EntityManager entityManager;
 
-    private static final String QUERY_IDS_BY_ROW_NUMBER_SQL = "select id from (select row_number() over (order by id) as rownum,id from instrument)as instrument where rownum in (:rownumbers) order by id";
+    private static final String QUERY_IDS_BY_ROW_NUMBER_SQL = "select id from (select row_number() over (order by id) as rownum,id from Find_liset) as Find_list where rownum in (:rownumbers) order by id";
     @Override
     public List<Long> getIdsByRowNumbers(List<Long> rowNumbers) {
         Query query = entityManager.createNativeQuery(QUERY_IDS_BY_ROW_NUMBER_SQL);
