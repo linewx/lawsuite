@@ -21,8 +21,8 @@ import java.util.concurrent.Future;
 /**
  * Created by lugan on 12/8/2016.
  */
-public class InstruementDBAnalyzer implements Analyzer{
-    private static final Logger logger = LoggerFactory.getLogger(InstruementDBAnalyzer.class);
+public class InstrumentDBAnalyzer implements Analyzer{
+    private static final Logger logger = LoggerFactory.getLogger(InstrumentDBAnalyzer.class);
 
     private RawdataService rawdataService;
     private AuditService auditService;

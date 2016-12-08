@@ -1,6 +1,7 @@
 package com.linewx.law.instrument;
 
 import com.google.gson.Gson;
+import com.linewx.law.instrument.analyzer.InstrumentDBAnalyzer;
 import com.linewx.law.instrument.audit.AuditService;
 import com.linewx.law.instrument.json.InstrumentRuleJson;
 import com.linewx.law.instrument.model.Instrument;
@@ -52,6 +53,12 @@ public class Application implements CommandLineRunner{
     }
 
     public void run(String ...argv) throws Exception {
+
+        if (true) {
+            InstrumentDBAnalyzer instrumentDBAnalyzer = new InstrumentDBAnalyzer();
+            instrumentDBAnalyzer.analyze();
+            return;
+        }
 
         Options options = new Options();
 
