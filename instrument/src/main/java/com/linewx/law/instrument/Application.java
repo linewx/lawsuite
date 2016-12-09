@@ -54,11 +54,11 @@ public class Application implements CommandLineRunner{
 
     public void run(String ...argv) throws Exception {
 
-        if (true) {
+        /*if (true) {
             InstrumentDBAnalyzer instrumentDBAnalyzer = new InstrumentDBAnalyzer();
             instrumentDBAnalyzer.analyze();
             return;
-        }
+        }*/
 
         Options options = new Options();
 
@@ -108,8 +108,8 @@ public class Application implements CommandLineRunner{
             folderName = "C:\\Users\\lugan\\Downloads\\law\\zaishen";
         }
 
-        //InstrumentReader instrumentReader = new InstrumentFilesReader(folderName);
-        InstrumentReader instrumentReader = new InstrumentDBReader(rawdataService);
+        InstrumentReader instrumentReader = new InstrumentFilesReader(folderName);
+        //InstrumentReader instrumentReader = new InstrumentDBReader(rawdataService);
         parse(instrumentReader);
     }
 
