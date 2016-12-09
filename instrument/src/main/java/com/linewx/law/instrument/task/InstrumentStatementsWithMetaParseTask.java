@@ -64,7 +64,6 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
             List<Instrument> instrumentList = new ArrayList<>();
             try {
                 for (InstrumentWithMeta statementsWithMeta : statementsList) {
-
                     Instrument instrument = new Instrument();
                     //populate source info
                     try {
@@ -75,30 +74,10 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
                         }
 
                         instrument = parser.parse(statements);
-                    /*List<String> debugMessage = new ArrayList<>();
-                    if (instrument != null) {
-                        List<String> instrumentContent = new ArrayList<>();
-                        Class<Instrument> instrumentClazz = Instrument.class;
-                        for (Map.Entry<String, String> name : NameMapping.names.entrySet()) {
-                            try {
-                                Method method = instrumentClazz.getMethod("get" + WordUtils.capitalize(name.getKey()));
-                                Object oneValue = method.invoke(instrument);
-                                instrumentContent.add(name.getValue() + ":" + oneValue.toString());
-
-                            } catch (Exception e) {
-
-                            }
-                            debugMessage.addAll(statements);
-                            debugMessage.addAll(instrumentContent);
-                            logger.info(String.join("\n", debugMessage));
-                        }
-
-                    }*/
-
                         instrument.setSourceType(statementsWithMeta.getSourceType());
                         instrument.setSourceId(statementsWithMeta.getSourceId());
                         instrument.setSourceName(statementsWithMeta.getSourceName());
-                        instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
+                        //instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
 
                         instrumentList.add(instrument);
                         //todo: remove later, debug only
@@ -120,7 +99,7 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
                         instrument.setSourceType(statementsWithMeta.getSourceType());
                         instrument.setSourceId(statementsWithMeta.getSourceId());
                         instrument.setSourceName(statementsWithMeta.getSourceName());
-                        instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
+                        //instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
                         instrumentList.add(instrument);
                         //todo: remove later, debug only
                         //checkInstrumentLength(instrument);
@@ -132,16 +111,9 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
                         instrument.setSourceType(statementsWithMeta.getSourceType());
                         instrument.setSourceId(statementsWithMeta.getSourceId());
                         instrument.setSourceName(statementsWithMeta.getSourceName());
-                        instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
+                        //instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
                         instrumentList.add(instrument);
                         //todo: remove later, debug only
-                        //checkInstrumentLength(instrument);
-
-                    /*List<String> errorMessage = new ArrayList<>();
-                    errorMessage.add("");
-                    errorMessage.addAll(statements);
-                    errorMessage.add("error: " +  e.getMessage());
-                    logger.error(String.join("\n", errorMessage));*/
                     }
                 }
                 try {
@@ -155,14 +127,14 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
                             if (rawdata != null) {
                                 logger.error("can not save instrument parse result:\n" + rawdata);
                             }
-                            e2.printStackTrace();
+                            logger.error("save one record failed", e2);
                         }
                     }
-                    e.printStackTrace();
+                    logger.error("save batch failed", e);
                 }
             }catch (Exception e) {
-                logger.error(e.getMessage());
-                e.printStackTrace();
+                logger.error("unknown save failed" , e);
+                //e.printStackTrace();
             }
 
 

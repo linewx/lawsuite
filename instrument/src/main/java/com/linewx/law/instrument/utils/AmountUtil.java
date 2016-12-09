@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by lugan on 11/18/2016.
@@ -56,12 +57,11 @@ public class AmountUtil {
     }
 
     public static Boolean isCharge(String reasonNumber, Long cost) {
-        if (reasonNumber != null && reasonNumber.length() >= 5) {
-            String reasonCategory = reasonNumber.substring(0, 5);
-            return cost >= amountStandard.getOrDefault(reasonCategory, 0L);
-
+        List<String> matchedReasons = amountStandard.keySet().stream().filter(reasonNumber::startsWith).collect(Collectors.toList());
+        if (matchedReasons != null && !matchedReasons.isEmpty()) {
+            return cost >= amountStandard.getOrDefault(matchedReasons.get(0), 0L);
         } else {
-            throw new RuntimeException("reason is too broad to identify cost");
+            return true;
         }
     }
 
@@ -71,10 +71,14 @@ public class AmountUtil {
     }
 
     public static void initAmountStandard() {
-        amountStandard.put("00202", 2000L); //婚姻家庭、继承纠纷
-        amountStandard.put("00201", 1000L); //人格权纠纷
-        amountStandard.put("00201", Long.MAX_VALUE); //劳动争议、人事纠纷
+        amountStandard.put("0020201", 2000L); //婚姻家庭、继承纠纷
+        amountStandard.put("0020101", 1000L); //人格权纠纷
+
+        amountStandard.put("0020601", Long.MAX_VALUE); //劳动争议、人事纠纷
+        amountStandard.put("0020602", Long.MAX_VALUE); //劳动争议、人事纠纷
+
         amountStandard.put("00302", 2500L); //著作权合同纠纷
+        amountStandard.put("00301", 2500L); //著作权合同纠纷
     }
 
     public static void initAmountLevels() {

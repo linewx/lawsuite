@@ -168,12 +168,12 @@ public class FirstCivilJudgementInstrumentParser extends BasicInstrumentParser i
 
         //validate accuserAmount:原告主要诉请获支持金额
         Long accuserAmount = calcuateAccuserAmount(amount, results.get("accuserAmountLines"));
-
+        instrument.setAccuserAmount(accuserAmount);
         //validate accuserAmountPer:原告主要诉请获支持率
         //validate defendantAmountPer:被告抗辩获支持率
         AmountPerInformation amountPerInformation = calculateAmountPer(amount, accuserAmount);
         instrument.setAccuserAmountPer(amountPerInformation.getAccuserAmountPer());
-        instrument.setDefendantWinPer(amountPerInformation.getDefendantAmountPer());
+        instrument.setDefendantAmountPer(amountPerInformation.getDefendantAmountPer());
 
         /*Long margin = Math.abs(amountPerInformation.getAccuserAmountPer() - costPerInformation.getAccuserWinPer());
         if (margin > 10) {
@@ -332,7 +332,7 @@ public class FirstCivilJudgementInstrumentParser extends BasicInstrumentParser i
         }
 
         Long costOnAccuserPer = 100 - costOnAccuser * 100 / totalCost;
-        Long costOnDefendantPer = 100 - costOnAccuser;
+        Long costOnDefendantPer = 100 - costOnAccuserPer;
         return new CostPerInformation(costOnAccuserPer, costOnDefendantPer);
     }
 
