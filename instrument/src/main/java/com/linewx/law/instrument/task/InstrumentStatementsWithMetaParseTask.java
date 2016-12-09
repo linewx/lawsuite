@@ -145,7 +145,7 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
                     }
                 }
                 try {
-                    //instrumentService.save(instrumentList);
+                    instrumentService.save(instrumentList);
                 }catch (Exception e) {
                     for (Instrument instrument:instrumentList) {
                         try {

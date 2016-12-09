@@ -43,6 +43,7 @@ public class RawdataRepositoryImpl implements CustomRawdataRepository {
         return query.select(qRawdata)
                 .from(qRawdata)
                 .where(booleanBuilder)
+                .orderBy(qRawdata.id.asc())
                 .limit(limit)
                 .fetch();
     }
