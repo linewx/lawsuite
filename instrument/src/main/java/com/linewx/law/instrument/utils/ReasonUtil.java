@@ -24,7 +24,7 @@ public class ReasonUtil{
     private static Pattern reasonPattern;
     private static Pattern secondaryReasonPattern;
 
-    public static void main(String ...argv) {
+    /*public static void main(String ...argv) {
         //List<String> reasons = Arrays.asList("婚约财产纠纷","离婚纠纷","离婚后财产纠纷","离婚后损害责任纠纷","婚姻无效纠纷","撤销婚姻纠纷","夫妻财产约定纠纷","同居关系纠纷","抚养纠纷","扶养纠纷","赡养纠纷","收养关系纠纷","监护权纠纷","探望权纠纷","分家析产纠纷");
         //List<String> reasons = Arrays.asList("生命权、健康权、身体权纠纷","姓名权纠纷","肖像权纠纷","名誉权纠纷","荣誉权纠纷","隐私权纠纷","婚姻自主权纠纷","人身自由权纠纷","一般人格权纠纷");
         //List<String> reasons = Arrays.asList("人事争议");
@@ -33,7 +33,7 @@ public class ReasonUtil{
         for (String oneReason : reasons) {
             System.out.println(oneReason + ":" + getReasonNumber(oneReason));
         }
-    }
+    }*/
     static {
         load();
         reasonPattern = Pattern.compile(MessageFormat.format(".*?({0})$", String.join("|", reasonIndex.keySet())));
