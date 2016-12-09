@@ -8,7 +8,8 @@ public enum InstrumentErrorCode {
     FILED_EXCEED(5),
     INPROPER_REASON(6),
     IGNORE(7),
-    UNKNOWN(8);
+    UNKNOWN(8),
+    SAVE_FAILED(9);
 
     private int errorCode;
 
