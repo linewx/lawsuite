@@ -1,6 +1,7 @@
 package com.linewx.law.parser;
 
 import com.linewx.law.parser.json.RuleJson;
+import com.linewx.law.parser.state.ParseState;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +70,7 @@ public class ParseStateMachine {
         if (context.getCurrentStatement() == null || context.getCurrentStatement().isEmpty()) {
             return;
         }
-        com.linewx.law.parser.state.ParseState currentState = states.get(context.getCurrentState());
+        ParseState currentState = states.get(context.getCurrentState());
         String nextStateName = transform(context.getCurrentState(), context);
         if (nextStateName == null) {
             throw new RuntimeException("state is null");
