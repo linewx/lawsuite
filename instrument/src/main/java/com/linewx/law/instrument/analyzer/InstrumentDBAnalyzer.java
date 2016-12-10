@@ -119,30 +119,5 @@ public class InstrumentDBAnalyzer implements Analyzer{
         System.out.println();
         executor.shutdown();
     }
-
-    /*@Override
-    public void analyze() {
-        int coreNumber = Runtime.getRuntime().availableProcessors();
-        ExecutorService executor = Executors.newFixedThreadPool(coreNumber);
-        List<Future> futures = new ArrayList<>();
-
-        Long startTime = System.currentTimeMillis();
-        for (int i=0; i<coreNumber; i++) {
-            Future<Boolean> future = executor.submit(new InstrumentStatementsWithMetaParseTask(
-                    instrumentReader,
-                    instrumentService, auditService));
-            futures.add(future);
-        }
-
-        for (Future future : futures) {
-            try {
-                future.get();
-            }catch(Exception e) {
-                logger.error(e.getMessage());
-            }
-
-        }
-
-
-    }*/
 }
+
