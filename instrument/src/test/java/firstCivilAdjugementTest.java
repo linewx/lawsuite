@@ -26,9 +26,6 @@ public class firstCivilAdjugementTest {
         verifyField(accuserPattern, testSuite);
     }
 
-    
-
-
 
     private void verifyField(String reg, List<Pair<String, String>> matchString) {
 

@@ -1,0 +1,518 @@
+{
+	"firstState": "start",
+	"type": "民事调解书",
+	"level": "初",
+	"states": [
+		{
+			"id": "start"
+		},
+		{
+			"id": "court",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"court",
+						"cur",
+						"(.*)"
+					]
+				}
+			]
+
+		},
+		{
+			"id": "verdict",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"instrumentType",
+						"cur",
+						"(.*)",
+						"",
+						"eraseSpace"
+					]
+				}
+			]
+		},
+		{
+			"id": "number",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"number",
+						"cur",
+						"(.*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"level",
+						"cur",
+						".*([^字|第|\\d|-]).*号.*",
+						null,
+						"level"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"caseType",
+						"cur",
+						".*([行|民|刑|商|赔|执|法|知]).*"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"suiteDate",
+						"cur",
+						".*[（|\\(](\\d*)[）|\\)].*"
+					]
+				}
+			]
+		},
+		{
+			"id": "accuser",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"accuser",
+						"cur",
+						"^(?:原告|公诉机关|起诉人)(?:：)?([\u4e00-\u9fa5]*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"accuserAlias",
+						"cur",
+						"以下简称([\u4e00-\u9fa5]*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"accuserLegalEntity",
+						"cur",
+						"(?:法定代理人)([\u4e00-\u9fa5]*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"accuserLawyer",
+						"cur",
+						"(?:代理人|代表人)(?:（特别授权）|（一般授权）)?：?([\u4e00-\u9fa5]*).*律师"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"accuserLawyerOffice",
+						"cur",
+						["([\u4e00-\u9fa5]*律[师,所]事务所?)","([\u4e00-\u9fa5]*法律援助中心?)"]
+					]
+				}
+			]
+
+		},
+		{
+			"id": "defendant",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"defendant",
+						"cur",
+						"^被告([\u4e00-\u9fa5]*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"defendantAlias",
+						"cur",
+						"以下简称([\u4e00-\u9fa5]*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"defendantLegalEntity",
+						"cur",
+						"(?:法定代理人|法定代表人|负责人)([\u4e00-\u9fa5]*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"defendantLawyer",
+						"cur",
+						"(?:代理人|代表人)(?:（特别授权）|（一般授权）)?：?([\u4e00-\u9fa5]*).*律师"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"defendantLawyerOffice",
+						"cur",
+						["([\u4e00-\u9fa5]*律[师,所]事务所?)","([\u4e00-\u9fa5]*法律援助中心?)"]
+					]
+				}
+			]
+		},
+		{
+			"id": "content",
+			"onEntry" : [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"reason",
+						"cur",
+						"(.*[纠纷|罪]).*"
+					]
+				}
+			],
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"content",
+						"cur",
+						"(.*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"firstConciliation",
+						"cur",
+						".*(自愿达成.*协议).*"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"cost",
+						"cur",
+						"^[\u4e00-\u9fa5|、]*(?:受理费|诉讼费)(?:人民币|用|收取)?([\\d|，|〇|一|二|三|四|五|六|七|八|九|十|百|千|万|亿]+)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"cost",
+						"cur",
+						"^[\u4e00-\u9fa5]*减半收取[\u4e00-\u9fa5]*(\\d+)",
+						null,
+						"double"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"discountHalf",
+						"cur",
+						"(?:诉讼费|受理费).*(减半).*"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"costOnAccuser",
+						"cur",
+						"(?:诉讼费|受理费).*原告.*?(?:负|承)担(\\d*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"costOnDefendant",
+						"cur",
+						"(?:诉讼费|受理费).*被告.*?(?:负|承)担(\\d*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"costUser",
+						"cur",
+						"^[\u4e00-\u9fa5|、]*(?:受理费|诉讼费).*由([\u4e00-\u9fa5|、]*)?(?:负|承)担\\d*?"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"costOnUser",
+						"cur",
+						"^[\u4e00-\u9fa5|、]*(?:受理费|诉讼费).*由(?:[\u4e00-\u9fa5|、]*)?(?:负|承)担(\\d*)?"
+					]
+				},
+				{
+					"action": "cacheMultiLines",
+					"parameters": [
+						"accuserAmountLines",
+						".*判决如下(.*)",
+						"^(.*)未按本判决指定的期间履行给付金钱义务"
+					]
+				}
+			]
+		},
+		{
+			"id": "judge",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"judge",
+						"cur",
+						"^(?:审判长|审判员|代审判员|代理审判员|审\\?判\\?长)(.*)",
+						"eraseSpace"
+					]
+				}
+			]
+		},
+		{
+			"id": "juror",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"juror",
+						"cur",
+						"^人民陪审员　　([\u4e00-\u9fa5|　]*)",
+						"",
+						"eraseSpace"
+					]
+				}
+			]
+		},
+		{
+			"id": "date",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"date",
+						"cur",
+						"(.*)",
+						null,
+						"date"
+					]
+				}
+			]
+		},
+		{
+			"id": "dateclerk"
+		},
+		{
+			"id": "clerk",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"clerk",
+						"cur",
+						"书记员(.*)?(概要基本信息)?.*",
+						"eraseSpace"
+					]
+				}
+			]
+		},
+		{
+			"id": "abstract",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"abstractReason",
+						"cur",
+						".*案由：(.*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"abstractDate",
+						"cur",
+						".*裁判日期：(.*)"
+					]
+				}
+			]
+		},
+		{
+			"id": "end"
+		},
+		{
+			"id": "attached",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"attached",
+						"cur",
+						"(.*)"
+					]
+				}
+			]
+		}
+	],
+	"transitions": [
+		{
+			"source": "start",
+			"target": "court",
+			"condition": {
+				"previous": null,
+				"current": ".*法院$"
+			}
+		},
+		{
+			"source": "court",
+			"target": "verdict",
+			"condition": {
+				"previous": ".*法院$",
+				"current": ".*(书)$"
+			}
+		},
+		{
+			"source": "verdict",
+			"target": "number",
+			"condition": {
+				"previous": null,
+				"current": ".*\\d*号.*$"
+			}
+		},
+		{
+			"source": "number",
+			"target": "accuser",
+			"condition": {
+				"previous": null,
+				"current":  "^(原告|委托代理人|公诉机关|起诉人|负责人).*"
+			}
+		},
+		{
+			"source": "number",
+			"target": "defendant",
+			"condition": {
+				"previous": null,
+				"current":  "^被告.*"
+			}
+		},
+		{
+			"source": "accuser",
+			"target": "defendant",
+			"condition": {
+				"previous": null,
+				"current":  "^被告.*"
+			}
+		},
+		{
+			"source": "defendant",
+			"target": "content",
+			"condition": {
+				"previous": null,
+				"current":  ".*纠纷.*"
+			}
+		},
+		{
+			"source": "content",
+			"target": "judge",
+			"condition": {
+				"previous": null,
+				"current":  "^(审判长|审判员|代审判员|代理审判员|审\\?判\\?长).*",
+				"curProcessor": "eraseSpace"
+			}
+		},
+		{
+			"source": "content",
+			"target": "juror",
+			"condition": {
+				"previous": null,
+				"current":  "^人民陪审员.*"
+			}
+		},
+		{
+			"source": "judge",
+			"target": "juror",
+			"condition": {
+				"previous": null,
+				"current":  "^人民陪审员.*"
+			}
+		},
+		{
+			"source": "judge",
+			"target": "date",
+			"condition": {
+				"previous": null,
+				"current":  "^二.*日$"
+			}
+		},
+		{
+			"source": "juror",
+			"target": "date",
+			"condition": {
+				"previous": null,
+				"current":  "^二.*日$"
+			}
+		},
+		{
+			"source": "judge",
+			"target": "dateclerk",
+			"condition": {
+				"previous": null,
+				"current":  "二.*(?<!日|一|二|三|四|五|六|八|九|〇)$"
+			}
+		},
+
+		{
+			"source": "date",
+			"target": "clerk",
+			"condition": {
+				"previous": null,
+				"current":  "^(?!二).*"
+			}
+		},
+		{
+			"source": "dateclerk",
+			"target": "attached",
+			"condition": {
+				"previous": null,
+				"current":  "^附.*"
+			}
+		},
+		{
+			"source": "clerk",
+			"target": "attached",
+			"condition": {
+				"previous": null,
+				"current":  "^附.*"
+			}
+		},
+		{
+			"source": "clerk",
+			"target": "abstract",
+			"condition": {
+				"previous": ".*概要基本信息.*"
+			}
+		},
+		{
+			"source": "attached",
+			"target": "abstract",
+			"condition": {
+				"previous": ".*概要基本信息.*"
+			}
+		},
+		{
+			"source": "abstract",
+			"target": "end",
+			"condition": {
+				"previous": ".*当事人.*"
+			}
+
+		}
+	]
+}

@@ -75,7 +75,7 @@ public class ParseStateMachine {
         if (nextStateName == null) {
             throw new RuntimeException("state is null");
         } else {
-            com.linewx.law.parser.state.ParseState nextState = states.get(nextStateName);
+            ParseState nextState = states.get(nextStateName);
             if (nextState == null) {
                 throw new RuntimeException("unknown state " + nextStateName);
             } else {
