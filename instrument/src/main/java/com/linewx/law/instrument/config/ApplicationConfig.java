@@ -3,10 +3,15 @@ package com.linewx.law.instrument.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @Configuration
-@PropertySource("classpath:persistence.properties")
+@PropertySources({
+        @PropertySource("classpath:persistence.properties"),
+        @PropertySource(value = "classpath:persistence.local.properties", ignoreResourceNotFound = true),
+})
+
 @PropertySource("classpath:application.properties")
 class ApplicationConfig {
 
