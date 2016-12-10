@@ -1,7 +1,10 @@
 package com.linewx.law.instrument;
 
 import com.google.gson.Gson;
+import com.linewx.law.instrument.analyzer.Analyzer;
 import com.linewx.law.instrument.analyzer.InstrumentDBAnalyzer;
+import com.linewx.law.instrument.analyzer.InstrumentFileAnalyzer;
+import com.linewx.law.instrument.analyzer.InstrumentFolderAnalyzer;
 import com.linewx.law.instrument.audit.AuditService;
 import com.linewx.law.instrument.json.InstrumentRuleJson;
 import com.linewx.law.instrument.model.Instrument;
@@ -90,83 +93,19 @@ public class Application implements CommandLineRunner{
 
         String fileName = commandLine.getOptionValue("f");
         if (fileName != null) {
-            parseFile(fileName);
+            Analyzer analyzer = new InstrumentFileAnalyzer(fileName);
+            analyzer.analyze();
             return;
         }
 
-       /* String folderName = commandLine.getOptionValue("d");
-        if (folderName != null) {
-            parseFiles(folderName);
-            return;
-        }*/
-
-        //parseFromDB();
-        //parseFromDBSync();
-        //storeDataToFile();
         String folderName = commandLine.getOptionValue("d");
-        if (folderName == null) {
-            folderName = "C:\\Users\\lugan\\Downloads\\law\\zaishen";
-        }
-
-        InstrumentReader instrumentReader = new InstrumentFilesReader(folderName);
-        //InstrumentReader instrumentReader = new InstrumentDBReader(rawdataService);
-        parse(instrumentReader);
-    }
-
-    public void parse(InstrumentReader instrumentReader) {
-        ExecutorService executor = Executors.newFixedThreadPool(8);
-        List<Future> futures = new ArrayList<>();
-
-        Long startTime = System.currentTimeMillis();
-        for (int i=0; i<8; i++) {
-            Future<Boolean> future = executor.submit(new InstrumentStatementsWithMetaParseTask(
-                    instrumentReader,
-                    instrumentService, auditService));
-            futures.add(future);
-        }
-
-        for (Future future : futures) {
-            try {
-                future.get();
-            }catch(Exception e) {
-                logger.error(e.getMessage());
-            }
-
-        }
-
-        Long endTime = System.currentTimeMillis();
-
-        System.out.println((endTime - startTime) / 1000);
-        Map<String, Long> auditResult = auditService.getResult();
-
-        for (Map.Entry<String, Long> entry: auditResult.entrySet()) {
-            System.out.print(entry.getKey() + ":" + entry.getValue() + ".");
-        }
-
-        Long processed = auditService.getProcessed();
-        Long error = auditService.getError();
-        Long unsupported = auditService.getUnsupported();
-        Long ignored = auditService.getIgnored();
-        Long regPer = 0L;
-        if (!processed.equals(unsupported + ignored)) {
-            regPer = (processed - error - unsupported - ignored) * 100 / (processed - unsupported - ignored);
-        }
-
-        System.out.print("识别率:" + regPer.toString() + "%.");
-        System.out.println();
-        executor.shutdown();
-
-    }
-
-    public void parseFile(String fileName) {
-        File file = new File(fileName);
-        InstrumentFileParseTask task = new InstrumentFileParseTask(file, instrumentService, auditService);
-        try {
-            task.call();
-        }catch(Exception e) {
-            e.printStackTrace();
+        if (folderName != null) {
+            Analyzer analyzer = new InstrumentFolderAnalyzer(new InstrumentFilesReader(folderName));
+            analyzer.analyze();
         }
     }
+
+
 
 
     public void storeDataToFile() throws Exception{
@@ -178,7 +117,7 @@ public class Application implements CommandLineRunner{
                 break;
             }else {
                 for (Rawdata rawdata: rawdatas) {
-                    String id = ((Long)rawdata.getId()).toString();
+                    String id = (rawdata.getId()).toString();
                     try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                             new FileOutputStream("C:\\Users\\lugan\\Downloads\\law\\zaishen" + id + ".txt"), "utf-8"))) {
                         writer.write(rawdata.getNr());
@@ -192,7 +131,4 @@ public class Application implements CommandLineRunner{
 
         }
     }
-
-
-
 }
