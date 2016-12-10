@@ -3,6 +3,7 @@ package com.linewx.law.instrument.reader;
 import com.linewx.law.instrument.model.rawdata.Rawdata;
 import com.linewx.law.instrument.model.rawdata.RawdataService;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -39,7 +40,13 @@ public class InstrumentDBReaderV2 implements InstrumentReader {
                 InstrumentWithMeta instrumentWithMeta = new InstrumentWithMeta();
                 instrumentWithMeta.setSourceType("db");
                 instrumentWithMeta.setSourceId(rawdata.getId());
-                instrumentWithMeta.setContent(Arrays.asList(rawdata.getNr().split("\r\n")));
+                String rd = rawdata.getNr();
+                if (rd == null) {
+                    instrumentWithMeta.setContent(new ArrayList<>());
+                }else {
+                    instrumentWithMeta.setContent(Arrays.asList(rd.split("\r\n")));
+                }
+
                 return instrumentWithMeta;
             }
         }

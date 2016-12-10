@@ -123,9 +123,14 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
                         try {
                             instrumentService.save(instrument);
                         }catch (Exception e2) {
-                            String rawdata = instrument.getRawdata();
-                            if (rawdata != null) {
-                                logger.error("can not save instrument parse result:\n" + rawdata);
+                            Long sourceId = instrument.getSourceId();
+                            if (sourceId != null) {
+                                logger.error("can not save instrument parse result:\n" + sourceId.toString());
+                                Instrument errorInstrument = new Instrument();
+                                errorInstrument.setSourceId(sourceId);
+                                errorInstrument.setErrorCode(InstrumentErrorCode.SAVE_FAILED.getErrorCode());
+                                errorInstrument.setErrorMessage("can not save record");
+                                instrumentService.save(errorInstrument);
                             }
                             logger.error("save one record failed", e2);
                         }
