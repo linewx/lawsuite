@@ -2,6 +2,7 @@ package com.linewx.law.instrument.model.rawdata;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityManager;
@@ -24,8 +25,17 @@ public class RawdataRepositoryImpl implements CustomRawdataRepository {
     public List<Long> getIdsByRowNumbers(List<Long> rowNumbers) {
         Query query = entityManager.createNativeQuery(QUERY_IDS_BY_ROW_NUMBER_SQL);
         query.setParameter("rownumbers", rowNumbers);
-        List<BigInteger> resultList = query.getResultList();
-        return resultList.stream().map(BigInteger::longValue).collect(Collectors.toList());
+
+        List<Object> resultList = query.getResultList();
+        return resultList.stream().map(result -> {
+            if (result instanceof BigInteger) {
+                return ((BigInteger) result).longValue();
+            }else if(result instanceof Integer) {
+                return ((Integer) result).longValue();
+            }else {
+                return 0L;
+            }
+        }).filter(one -> one > 0).collect(Collectors.toList());
     }
 
     @Override
