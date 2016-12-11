@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 /**
  * Created by lugan on 11/18/2016.
  */
-public class setFieldWithRegActionTemplate implements ActionTemplate{
+public class setFieldWithRegActionTemplate extends AbstractActionTemplate{
     public void execute(ParseContext context, List<JsonElement> parameters) {
         if(parameters != null) {
             int length = parameters.size();
@@ -61,6 +61,9 @@ public class setFieldWithRegActionTemplate implements ActionTemplate{
 
                         }
                         context.addResult(field, result);
+                        if (showAction) {
+                            System.out.println(field + ":\t" +result);
+                        }
                         return;
                     }
                 }

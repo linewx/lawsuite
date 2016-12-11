@@ -1,12 +1,12 @@
 package com.linewx.law.parser;
 
+import com.linewx.law.parser.cfg.ConfigurationHelper;
+import com.linewx.law.parser.cfg.ParserConfiguration;
 import com.linewx.law.parser.json.RuleJson;
 import com.linewx.law.parser.state.ParseState;
+import com.linewx.law.parser.state.ParseStateImpl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by luganlin on 11/16/16.
@@ -15,10 +15,17 @@ public class ParseStateMachine {
     private Map<String, com.linewx.law.parser.state.ParseState> states = new HashMap<>();
     private Map<String, List<Transition>> transitions = new HashMap<>();
 
+    private Boolean showTransition = false;
+
     public ParseStateMachine(RuleJson rule) {
+        this(rule, null);
+    }
+
+    public ParseStateMachine(RuleJson rule, Properties properties) {
         ActionHandler actionHandler = new ActionHandler();
+        actionHandler.configuration(properties);
         rule.getStates().forEach(oneState ->
-                states.put(oneState.getId(), new com.linewx.law.parser.state.ParseStateImpl(oneState, actionHandler))
+                states.put(oneState.getId(), new ParseStateImpl(oneState, actionHandler))
         );
 
         rule.getTransitions().forEach(oneTransition -> {
@@ -28,6 +35,7 @@ public class ParseStateMachine {
                     transitions.get(oneTransition.getSource()).add(new Transition(oneTransition));
                 }
         );
+        this.showTransition = ConfigurationHelper.getBoolean(ParserConfiguration.SHOW_TRANSITION, properties);
     }
 
     public String transform(String state, ParseContext context) {
@@ -51,6 +59,9 @@ public class ParseStateMachine {
         for (String statement : content) {
             if (statement == null || statement.isEmpty()) {
                 continue;
+            }
+            if (showTransition) {
+                System.out.println(context.getCurrentStatement());
             }
             stepContext(context, statement);
             parse(context);
@@ -84,7 +95,12 @@ public class ParseStateMachine {
                 } else {
                     currentState.onExit(context);
                     context.setCurrentState(nextStateName);
+                    if (showTransition) {
+                        System.out.println("------" + nextStateName + "---------");
+                    }
                     nextState.onEntry(context);
+
+
                 }
             }
         }

@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by lugan on 11/18/2016.
  */
-public class setFieldActionTemplate implements ActionTemplate {
+public class setFieldActionTemplate extends AbstractActionTemplate {
     public void execute(ParseContext context, List<JsonElement> parameters) {
 
     }

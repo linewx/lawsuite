@@ -8,11 +8,13 @@ import com.linewx.law.instrument.utils.ContentClearUtil;
 import com.linewx.law.instrument.utils.ReasonUtil;
 import com.linewx.law.parser.ParseContext;
 import com.linewx.law.parser.ParseStateMachine;
+import com.linewx.law.parser.cfg.ParserConfiguration;
 import com.linewx.law.parser.json.RuleJson;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by lugan on 11/30/2016.
@@ -25,11 +27,32 @@ abstract public class AbstractInstrumentParser implements InstrumentParser{
         this.rule = rule;
         parseStateMachine = new ParseStateMachine(rule);
     }
+
     @Override
     public Instrument parse(List<String> statements) {
-        ParseContext context = new ParseContext();
+        return parse(statements, false);
+        /*ParseContext context = new ParseContext();
         context.setCurrentState("start");
         ParseStateMachine stateMachine = new ParseStateMachine(rule);
+        stateMachine.run(context, statements);
+
+        Instrument instrument = new Instrument();
+
+        populateInstrument(context, instrument);
+        return instrument;*/
+    }
+
+    @Override
+    public Instrument parse(List<String> statements, Boolean debugMode) {
+        ParseContext context = new ParseContext();
+        context.setCurrentState("start");
+        Properties properties = new Properties();
+        if (debugMode) {
+            properties.put(ParserConfiguration.SHOW_ACTION, true);
+            properties.put(ParserConfiguration.SHOW_TRANSITION, true);
+        }
+
+        ParseStateMachine stateMachine = new ParseStateMachine(rule, properties);
         stateMachine.run(context, statements);
 
         Instrument instrument = new Instrument();

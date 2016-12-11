@@ -33,6 +33,8 @@ public class ParseStateImpl implements ParseState{
         this.onExitLineAction =  state.getOnExitLine() != null ?  state.getOnExitLine() : new LinkedList<>();
     }
 
+
+
     @Override
     public String getState() {
         return state;

@@ -120,6 +120,17 @@ public class CivilJudgementInstrumentParser implements InstrumentParser {
         return parseContext(context);
     }
 
+    @Override
+    public Instrument parse(List<String> statements, Boolean debugMode) {
+
+        ParseContext context = new ParseContext();
+        context.setCurrentState("start");
+        ParseStateMachine stateMachine = new ParseStateMachine(rule);
+        stateMachine.run(context, statements);
+
+        return parseContext(context);
+    }
+
     private Instrument parseContext(ParseContext context) {
         Instrument instrument = new Instrument();
         

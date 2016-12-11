@@ -11,4 +11,6 @@ import java.util.List;
 public interface InstrumentParser {
 
     Instrument parse(List<String> statements);
+
+    Instrument parse(List<String> statements, Boolean debugMode);
 }

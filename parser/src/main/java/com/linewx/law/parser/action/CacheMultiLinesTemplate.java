@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 /**
  * Created by luganlin on 11/22/16.
  */
-public class CacheMultiLinesTemplate implements ActionTemplate{
+public class CacheMultiLinesTemplate extends AbstractActionTemplate{
     @Override
     public void execute(ParseContext context, List<JsonElement> parameters) {
         if(parameters == null || parameters.size()!=3) {

@@ -1,5 +1,6 @@
 package com.linewx.law.instrument.parser;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.gson.Gson;
 import com.linewx.law.instrument.json.InstrumentRuleConverter;
 import com.linewx.law.instrument.json.InstrumentRuleJson;
@@ -22,15 +23,16 @@ public class CivilAdjudgementParserTest {
 
     @Test
     public void testParser () throws Exception{
-        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("rule/firstCivilAdudgementRule.json");
+        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("rule/firstCivilAjudgementRule.json");
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "UTF8"));
         Gson gson = new Gson();
         InstrumentRuleJson instrumentRuleJson = gson.fromJson(bufferedReader, InstrumentRuleJson.class);
         RuleJson ruleJson = InstrumentRuleConverter.convertInstrumentRuleToParserRule(instrumentRuleJson);
-        CivilJudgementInstrumentParser parser = new CivilJudgementInstrumentParser(ruleJson);
-        
-        Instrument instrument = parser.parse(readFileContent("fixture/file1.txt"));
-        Assert.assertEquals(instrument.getAccuser(), "");
+        InstrumentParser parser = new FirstCivilJudgementInstrumentParser(ruleJson);
+
+        Instrument instrument = parser.parse(readFileContent("fixtures/file1.txt"), true);
+        Assert.assertEquals(instrument.getAccuser(), "匡某");
+
     }
 
     private List<String> readFileContent(String path) throws Exception{
