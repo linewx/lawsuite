@@ -91,6 +91,8 @@ public class Application implements CommandLineRunner{
             return;
         }
 
+        //start analyze
+
         String fileName = commandLine.getOptionValue("f");
         if (fileName != null) {
             Analyzer analyzer = new InstrumentFileAnalyzer(fileName);
@@ -102,7 +104,12 @@ public class Application implements CommandLineRunner{
         if (folderName != null) {
             Analyzer analyzer = new InstrumentFolderAnalyzer(new InstrumentFilesReader(folderName));
             analyzer.analyze();
+            return;
         }
+
+        //default parser
+        InstrumentDBAnalyzer instrumentDBAnalyzer = new InstrumentDBAnalyzer();
+        instrumentDBAnalyzer.analyze();
     }
 
 
