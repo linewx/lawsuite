@@ -1,8 +1,12 @@
 package com.linewx.law.instrument.parser;
 
 import com.google.gson.Gson;
+import com.linewx.law.instrument.exception.InstrumentParserException;
 import com.linewx.law.instrument.json.InstrumentRuleConverter;
 import com.linewx.law.instrument.json.InstrumentRuleJson;
+import com.linewx.law.instrument.meta.model.InstrumentDomainEnum;
+import com.linewx.law.instrument.meta.model.InstrumentLevelEnum;
+import com.linewx.law.instrument.meta.model.InstrumentTypeEnum;
 import com.linewx.law.parser.json.RuleJson;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.collections.map.MultiKeyMap;
@@ -48,6 +52,24 @@ public class InstrumentRuleManager {
     public void add(InstrumentRuleJson instrumentRuleJson) {
         rules.put(instrumentRuleJson.getType() + "-" + instrumentRuleJson.getLevel(),
                 InstrumentRuleConverter.convertInstrumentRuleToParserRule(instrumentRuleJson));
+    }
+
+    public RuleJson lookup(InstrumentDomainEnum domain, InstrumentLevelEnum level, InstrumentTypeEnum type) {
+        for (String oneRule: rules.keySet()) {
+            List<String> ruleKey = Arrays.asList(oneRule.split("-"));
+            if (ruleKey.size() != 3) {
+                throw new InstrumentParserException("invalid rule");
+            }
+
+            String ruleDomainKey = ruleKey.get(0);
+            String ruleLevelKey = ruleKey.get(0);
+            String ruleTypeKey = ruleKey.get(0);
+
+            if (ruleDomainKey.contains(domain.name()) && ruleLevelKey.contains(level.name()) && ruleTypeKey.contains(type.name())) {
+                return rules.get(oneRule);
+            }
+        }
+        return null;
     }
 
     public RuleJson lookup(String instrumentType, String instrumentLevel){

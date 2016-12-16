@@ -19,8 +19,6 @@ import java.util.List;
  * Created by luganlin on 12/10/16.
  */
 public class CivilAdjudgementParserTest {
-
-
     @Test
     public void testParser () throws Exception{
         InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("rule/firstCivilAjudgementRule.json");
@@ -32,7 +30,6 @@ public class CivilAdjudgementParserTest {
 
         Instrument instrument = parser.parse(readFileContent("fixtures/file1.txt"), true);
         Assert.assertEquals(instrument.getAccuser(), "匡某");
-
     }
 
     private List<String> readFileContent(String path) throws Exception{

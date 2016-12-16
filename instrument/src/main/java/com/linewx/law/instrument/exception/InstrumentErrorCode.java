@@ -9,7 +9,8 @@ public enum InstrumentErrorCode {
     INPROPER_REASON(6),
     IGNORE(7),
     UNKNOWN(8),
-    SAVE_FAILED(9);
+    SAVE_FAILED(9),
+    METADATA(10);
 
     private int errorCode;
 

@@ -1,0 +1,88 @@
+{
+	"firstState": "start",
+	"type": "meta",
+	"level": "",
+	"states": [
+		{
+			"id": "verdict",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"instrumentType",
+						"cur",
+						"(.*)",
+						"",
+						"eraseSpace"
+					]
+				}
+			]
+		},
+		{
+			"id": "number",
+			"onEntryLine": [
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"number",
+						"cur",
+						"(.*)"
+					]
+				},
+				{
+					"action": "setFieldWithReg",
+					"parameters": [
+						"level",
+						"cur",
+						".*([^字|第|\\d|-]).*号.*",
+						null,
+						"level"
+					]
+				}
+			]
+		}
+	],
+	"transitions": [
+		{
+			"source": "start",
+			"target": "court",
+			"condition": {
+				"previous": null,
+				"current": ".*法院$"
+			}
+		},
+		{
+			"source": "court",
+			"target": "verdict",
+			"condition": {
+				"previous": ".*法院$",
+				"current": ".*(书)$"
+			}
+		},
+		{
+			"source": "verdict",
+			"target": "number",
+			"condition": {
+				"previous": null,
+				"current": ".*\\d*号.*$"
+			}
+		},
+		{
+			"source": "number",
+			"target": "content",
+			"condition": {
+				"previous": "^[^号]*$",
+				"current": null
+			}
+		},
+		{
+			"source": "content",
+			"target": "end",
+			"condition": {
+				"previous": null,
+				"current":  "^(审判长|审判员|代审判员|代理审判员|审\\?判\\?长|人民陪审员).*",
+				"curProcessor": "eraseSpace"
+			}
+		}
+	]
+}
