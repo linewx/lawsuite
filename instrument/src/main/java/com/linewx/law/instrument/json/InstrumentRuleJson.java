@@ -16,6 +16,8 @@ public class InstrumentRuleJson {
 
     List<TransitionJson> transitions;
 
+    String domain;
+
     String type;
 
     String level;
@@ -60,5 +62,11 @@ public class InstrumentRuleJson {
         this.level = level;
     }
 
+    public String getDomain() {
+        return domain;
+    }
 
+    public void setDomain(String domain) {
+        this.domain = domain;
+    }
 }

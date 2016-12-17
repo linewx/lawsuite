@@ -8,7 +8,8 @@ public enum InstrumentDomainEnum {
     CRIMINAL_DOMAIN("刑事"),
     ADMINISTRATION_DOMAIN("行政"),
     EXECUTION_DOMAIN("执行"),
-    COMPENSATION_DOMAIN("赔偿");
+    COMPENSATION_DOMAIN("赔偿"),
+    EMPTY_DOMAIN("空");
 
     private final String domain;
 

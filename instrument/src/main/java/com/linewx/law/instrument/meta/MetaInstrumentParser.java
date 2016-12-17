@@ -10,6 +10,8 @@ import com.linewx.law.instrument.meta.model.InstrumentLevelEnum;
 import com.linewx.law.instrument.meta.model.InstrumentMetadata;
 import com.linewx.law.instrument.meta.model.InstrumentTypeEnum;
 import com.linewx.law.instrument.model.Instrument;
+import com.linewx.law.instrument.parser.InstrumentRuleManager;
+import com.linewx.law.instrument.service.LookupService;
 import com.linewx.law.parser.ParseContext;
 import com.linewx.law.parser.ParseStateMachine;
 import com.linewx.law.parser.cfg.ParserConfiguration;
@@ -22,27 +24,48 @@ import java.util.Properties;
  * Created by lugan on 12/16/2016.
  */
 public class MetaInstrumentParser {
-    private RuleJson rule;
 
-    public MetaInstrumentParser(RuleJson rule) {
-        this.rule = rule;
-    }
+    public static InstrumentMetadata parse(List<String> statements, Boolean debugMode) {
+        try {
+            InstrumentRuleManager ruleManager = LookupService.getInstance().lookup(InstrumentRuleManager.class);
+            RuleJson rule = ruleManager.getMetaRule();
+            ParseContext context = new ParseContext();
+            context.setCurrentState("start");
+            Properties properties = new Properties();
+            if (debugMode) {
+                properties.put(ParserConfiguration.SHOW_ACTION, true);
+                properties.put(ParserConfiguration.SHOW_TRANSITION, true);
+            }
 
-    public InstrumentMetadata parse(List<String> statements, Boolean debugMode) {
-        ParseContext context = new ParseContext();
-        context.setCurrentState("start");
-        Properties properties = new Properties();
-        if (debugMode) {
-            properties.put(ParserConfiguration.SHOW_ACTION, true);
-            properties.put(ParserConfiguration.SHOW_TRANSITION, true);
+            ParseStateMachine stateMachine = new ParseStateMachine(rule, properties);
+            stateMachine.run(context, statements);
+            return getMetadata(context);
+        }catch (Exception e) {
+            throw new InstrumentParserException("invalid document", InstrumentErrorCode.METADATA);
         }
 
-        ParseStateMachine stateMachine = new ParseStateMachine(rule, properties);
-        stateMachine.run(context, statements);
-        return getMetadata(context);
     }
 
-    private InstrumentMetadata getMetadata(ParseContext context) {
+    //for test purpose
+    public static InstrumentMetadata parse(List<String> statements, RuleJson rule, Boolean debugMode) {
+        try {
+            ParseContext context = new ParseContext();
+            context.setCurrentState("start");
+            Properties properties = new Properties();
+            if (debugMode) {
+                properties.put(ParserConfiguration.SHOW_ACTION, true);
+                properties.put(ParserConfiguration.SHOW_TRANSITION, true);
+            }
+
+            ParseStateMachine stateMachine = new ParseStateMachine(rule, properties);
+            stateMachine.run(context, statements);
+            return getMetadata(context);
+        }catch (Exception e) {
+            throw new InstrumentParserException("invalid document", InstrumentErrorCode.METADATA);
+        }
+    }
+
+    private static InstrumentMetadata getMetadata(ParseContext context) {
         MetaParseContext metaParseContext = new MetaParseContext(context);
 
         InstrumentDomainEnum instrumentDomainEnum;

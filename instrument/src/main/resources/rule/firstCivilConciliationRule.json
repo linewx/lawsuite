@@ -1,7 +1,8 @@
 {
 	"firstState": "start",
-	"type": "民事调解书",
-	"level": "初",
+	"domain": "民事",
+	"type": "调解",
+	"level": "一审",
 	"states": [
 		{
 			"id": "start"
@@ -367,14 +368,14 @@
 			"target": "court",
 			"condition": {
 				"previous": null,
-				"current": ".*法院$"
+				"current": ".*院$"
 			}
 		},
 		{
 			"source": "court",
 			"target": "verdict",
 			"condition": {
-				"previous": ".*法院$",
+				"previous": ".*院$",
 				"current": ".*(书)$"
 			}
 		},

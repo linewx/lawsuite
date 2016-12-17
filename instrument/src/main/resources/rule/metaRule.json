@@ -1,8 +1,15 @@
 {
 	"firstState": "start",
-	"type": "meta",
+	"domain": "meta",
 	"level": "",
+	"type": "",
 	"states": [
+		{
+			"id": "start"
+		},
+		{
+			"id": "court"
+		},
 		{
 			"id": "verdict",
 			"onEntryLine": [
@@ -40,6 +47,12 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "content"
+		},
+		{
+			"id": "end"
 		}
 	],
 	"transitions": [
@@ -48,14 +61,14 @@
 			"target": "court",
 			"condition": {
 				"previous": null,
-				"current": ".*法院$"
+				"current": ".*院$"
 			}
 		},
 		{
 			"source": "court",
 			"target": "verdict",
 			"condition": {
-				"previous": ".*法院$",
+				"previous": ".*院$",
 				"current": ".*(书)$"
 			}
 		},
@@ -71,7 +84,7 @@
 			"source": "number",
 			"target": "content",
 			"condition": {
-				"previous": "^[^号]*$",
+				"previous": ".*\\d*号.*$",
 				"current": null
 			}
 		},

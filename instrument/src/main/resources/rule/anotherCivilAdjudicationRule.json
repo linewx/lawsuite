@@ -1,7 +1,8 @@
 {
 	"firstState": "start",
-	"type": "民事裁定书|民事判决书|民事调解书",
-	"level": "再",
+	"domain": "民事",
+	"type": "裁定|判决|调解",
+	"level": "再审",
 	"states": [
 		{
 			"id": "start",
@@ -409,14 +410,14 @@
 			"target": "court",
 			"condition": {
 				"previous": null,
-				"current": ".*法院$"
+				"current": ".*院$"
 			}
 		},
 		{
 			"source": "court",
 			"target": "verdict",
 			"condition": {
-				"previous": ".*法院$",
+				"previous": ".*院$",
 				"current": ".*(书)$"
 			}
 		},

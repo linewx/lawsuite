@@ -1,5 +1,9 @@
 package com.linewx.law.instrument.parser;
 
+import com.linewx.law.instrument.meta.model.InstrumentDomainEnum;
+import com.linewx.law.instrument.meta.model.InstrumentLevelEnum;
+import com.linewx.law.instrument.meta.model.InstrumentMetadata;
+import com.linewx.law.instrument.meta.model.InstrumentTypeEnum;
 import com.linewx.law.instrument.service.LookupService;
 import com.linewx.law.parser.json.RuleJson;
 
@@ -18,7 +22,6 @@ public class ParserFactory {
     private static Pattern typePattern;
     private static Pattern levelPattern;
     private static Pattern anotherPattern;
-    private static Map<String, InstrumentParser> parser;
 
     static {
         courtPattern = Pattern.compile(".*法院$");
@@ -26,6 +29,15 @@ public class ParserFactory {
         levelPattern = Pattern.compile(".*([^字|第|\\d|-]).*号.*");
         anotherPattern = Pattern.compile(".*[申|抗|再|提].*");
 
+    }
+
+    public static InstrumentParser get(InstrumentMetadata metadata) {
+        InstrumentRuleManager instrumentRuleManager = LookupService.getInstance().lookup(InstrumentRuleManager.class);
+        RuleJson rule = instrumentRuleManager.lookup(metadata);
+        if (rule == null) {
+            return null;
+        }
+        return get(metadata, rule);
     }
 
     public static InstrumentParser get(String instrumentType, String instrumentLevel) {
@@ -46,10 +58,53 @@ public class ParserFactory {
         }
     }
 
-    public static InstrumentParser get(String instrumentType, String instrumentLevel, RuleJson ruleJson) {
-        String firstMatch = instrumentType + instrumentLevel;
-        String secondMatch = instrumentType;
+    public static InstrumentParser get(InstrumentMetadata metadata, RuleJson rule) {
+        InstrumentDomainEnum domain = metadata.getInstrumentDomainEnum();
+        InstrumentLevelEnum level = metadata.getInstrumentLevelEnum();
+        InstrumentTypeEnum type = metadata.getInstrumentTypeEnum();
 
+
+        //民事
+        if (domain == InstrumentDomainEnum.CIVIL_DOMAIN) {
+            //民事 判决
+            if (type == InstrumentTypeEnum.ADJUDGEMENT) {
+                //民事 判决 一审
+                if (level == InstrumentLevelEnum.FIRST_LEVEL) {
+                    return new FirstCivilJudgementInstrumentParser(rule);
+                }
+                //民事 判决 二审
+                if (level == InstrumentLevelEnum.SECOND_LEVEL) {
+                    return new FinalCivilJudgementInstrumentParser(rule);
+                }
+
+                //民事 判决 再审
+                if (level == InstrumentLevelEnum.ANOTHER_LEVEL) {
+                    return new AnotherCivilJudgementInstrumentParser(rule);
+                }
+            }
+
+            //民事 调解
+            if (type == InstrumentTypeEnum.CONCILIATION) {
+                //民事 调解 一审
+                if (level == InstrumentLevelEnum.FIRST_LEVEL) {
+                    return new FirstCivilConciliationInstrumentParser(rule);
+                }
+
+                //民事 调解 二审
+                if (level == InstrumentLevelEnum.SECOND_LEVEL) {
+                    return new FinalCivilConciliationInstrumentParser(rule);
+                }
+
+                if (level == InstrumentLevelEnum.ANOTHER_LEVEL) {
+                    return new AnotherCivilJudgementInstrumentParser(rule);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static InstrumentParser get(String instrumentType, String instrumentLevel, RuleJson ruleJson) {
         if (instrumentType.equals("民事判决书") && instrumentLevel.equals("初")) {
             return new FirstCivilJudgementInstrumentParser(ruleJson);
         }

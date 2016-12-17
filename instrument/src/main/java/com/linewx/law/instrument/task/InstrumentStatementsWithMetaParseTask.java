@@ -3,6 +3,8 @@ package com.linewx.law.instrument.task;
 import com.linewx.law.instrument.audit.AuditService;
 import com.linewx.law.instrument.exception.InstrumentErrorCode;
 import com.linewx.law.instrument.exception.InstrumentParserException;
+import com.linewx.law.instrument.meta.MetaInstrumentParser;
+import com.linewx.law.instrument.meta.model.InstrumentMetadata;
 import com.linewx.law.instrument.model.Instrument;
 import com.linewx.law.instrument.model.InstrumentService;
 import com.linewx.law.instrument.parser.InstrumentParser;
@@ -53,6 +55,25 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
             }
         }
     }*/
+   private void populateCommonInfo(Instrument instrument, InstrumentWithMeta instrumentWithMeta) {
+       instrument.setSourceId(instrumentWithMeta.getSourceId());
+       instrument.setSourceName(instrumentWithMeta.getSourceName());
+       instrument.setSourceType(instrumentWithMeta.getSourceType());
+   }
+
+   private void populateErrorInfo(Instrument instrument,
+                                 InstrumentErrorCode instrumentErrorCode,
+                                 String errorMessage) {
+       instrument.setErrorCode(instrumentErrorCode.getErrorCode());
+       instrument.setErrorMessage(errorMessage);
+
+   }
+
+   private void populateMetaInfo(Instrument instrument, InstrumentMetadata metadata) {
+       instrument.setDomainTag(metadata.getInstrumentDomainEnum().getDomain());
+       instrument.setLevelTag(metadata.getInstrumentLevelEnum().getLevel());
+       instrument.setTypeTag(metadata.getInstrumentTypeEnum().getType());
+   }
 
     @Override
     public Boolean call() throws Exception {
@@ -64,24 +85,23 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
             List<Instrument> instrumentList = new ArrayList<>();
             try {
                 for (InstrumentWithMeta statementsWithMeta : statementsList) {
+
                     Instrument instrument = new Instrument();
+                    InstrumentMetadata instrumentMetadata = new InstrumentMetadata();
                     //populate source info
                     try {
                         List<String> statements = statementsWithMeta.getContent();
-                        InstrumentParser parser = ParserFactory.getFromStatement(statements);
+                        instrumentMetadata = MetaInstrumentParser.parse(statements, false);
+                        InstrumentParser parser = ParserFactory.get(instrumentMetadata);
+                        //InstrumentParser parser = ParserFactory.getFromStatement(statements);
                         if (parser == null) {
                             throw new InstrumentParserException(InstrumentErrorCode.UNSUPPORTED_TYPE);
                         }
 
-                        instrument = parser.parse(statements);
-                        instrument.setSourceType(statementsWithMeta.getSourceType());
-                        instrument.setSourceId(statementsWithMeta.getSourceId());
-                        instrument.setSourceName(statementsWithMeta.getSourceName());
-                        //instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
-
+                        instrument = parser.parse(statements, false);
+                        populateCommonInfo(instrument, statementsWithMeta);
+                        populateMetaInfo(instrument, instrumentMetadata);
                         instrumentList.add(instrument);
-                        //todo: remove later, debug only
-                        //checkInstrumentLength(instrument);
                         auditService.increase();
 
                     } catch (InstrumentParserException e) {
@@ -90,39 +110,31 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
 
                         } else if (e.getInstrumentErrorCode().equals(InstrumentErrorCode.IGNORE)) {
                             auditService.increaseIgnored();
-                        } else {
+                        } else if (e.getInstrumentErrorCode().equals(InstrumentErrorCode.METADATA)) {
+                            auditService.increaseIgnored();
+                        }else {
                             auditService.increaseError();
                         }
 
-                        instrument.setErrorCode(e.getInstrumentErrorCode().getErrorCode());
-                        instrument.setErrorMessage(e.getMessage());
-                        instrument.setSourceType(statementsWithMeta.getSourceType());
-                        instrument.setSourceId(statementsWithMeta.getSourceId());
-                        instrument.setSourceName(statementsWithMeta.getSourceName());
-                        //instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
+                        populateMetaInfo(instrument, instrumentMetadata);
+                        populateCommonInfo(instrument, statementsWithMeta);
+                        populateErrorInfo(instrument, e.getInstrumentErrorCode(), e.getMessage());
                         instrumentList.add(instrument);
-                        //todo: remove later, debug only
-                        //checkInstrumentLength(instrument);
-
                     } catch (Exception e) {
                         auditService.increaseError();
-                        instrument.setErrorCode(InstrumentErrorCode.UNKNOWN.getErrorCode());
-                        instrument.setErrorMessage(e.getMessage());
-                        instrument.setSourceType(statementsWithMeta.getSourceType());
-                        instrument.setSourceId(statementsWithMeta.getSourceId());
-                        instrument.setSourceName(statementsWithMeta.getSourceName());
-                        //instrument.setRawdata(String.join("\n", statementsWithMeta.getContent()));
+                        populateCommonInfo(instrument, statementsWithMeta);
+                        populateErrorInfo(instrument, InstrumentErrorCode.UNKNOWN, e.getMessage());
                         instrumentList.add(instrument);
                         //todo: remove later, debug only
                     }
                 }
                 try {
                     instrumentService.save(instrumentList);
-                }catch (Exception e) {
-                    for (Instrument instrument:instrumentList) {
+                } catch (Exception e) {
+                    for (Instrument instrument : instrumentList) {
                         try {
                             instrumentService.save(instrument);
-                        }catch (Exception e2) {
+                        } catch (Exception e2) {
                             Long sourceId = instrument.getSourceId();
                             if (sourceId != null) {
                                 logger.error("can not save instrument parse result:\n" + sourceId.toString());
@@ -137,15 +149,14 @@ public class InstrumentStatementsWithMetaParseTask implements Callable<Boolean> 
                     }
                     logger.error("save batch failed", e);
                 }
-            }catch (Exception e) {
-                logger.error("unknown save failed" , e);
-                //e.printStackTrace();
+            } catch (Exception e) {
+                logger.error("unknown save failed", e);
             }
 
 
             Map<String, Long> auditResult = auditService.getResult();
 
-            for (Map.Entry<String, Long> entry: auditResult.entrySet()) {
+            for (Map.Entry<String, Long> entry : auditResult.entrySet()) {
                 System.out.print(entry.getKey() + ":" + entry.getValue() + ".");
             }
             System.out.println();

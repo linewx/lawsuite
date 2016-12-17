@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class TypeIdentifier {
     private static Pattern typePattern;
     static {
-        typePattern = Pattern.compile("(判决书|裁定书|通知书|决定书|调解书|令)");
+        typePattern = Pattern.compile("(判决|裁定|通知|决定|调解|令)");
     }
     public static InstrumentTypeEnum identify(MetaParseContext context) {
         String typeResult = context.getType();

@@ -4,12 +4,8 @@ import com.google.gson.Gson;
 import com.linewx.law.instrument.exception.InstrumentParserException;
 import com.linewx.law.instrument.json.InstrumentRuleConverter;
 import com.linewx.law.instrument.json.InstrumentRuleJson;
-import com.linewx.law.instrument.meta.model.InstrumentDomainEnum;
-import com.linewx.law.instrument.meta.model.InstrumentLevelEnum;
-import com.linewx.law.instrument.meta.model.InstrumentTypeEnum;
+import com.linewx.law.instrument.meta.model.InstrumentMetadata;
 import com.linewx.law.parser.json.RuleJson;
-import org.apache.commons.collections.map.HashedMap;
-import org.apache.commons.collections.map.MultiKeyMap;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -17,9 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +26,7 @@ import java.util.Map;
 @Component
 public class InstrumentRuleManager {
     private Map<String, RuleJson> rules = new HashMap<>();
+    private RuleJson metaRule;
 
     @PostConstruct
     public void load() {
@@ -50,11 +45,20 @@ public class InstrumentRuleManager {
     }
 
     public void add(InstrumentRuleJson instrumentRuleJson) {
-        rules.put(instrumentRuleJson.getType() + "-" + instrumentRuleJson.getLevel(),
+        if (instrumentRuleJson.getDomain().equals("meta")) {
+            metaRule = InstrumentRuleConverter.convertInstrumentRuleToParserRule(instrumentRuleJson);
+            return;
+        }
+
+        rules.put(String.join("-", instrumentRuleJson.getDomain(), instrumentRuleJson.getLevel(), instrumentRuleJson.getType()),
                 InstrumentRuleConverter.convertInstrumentRuleToParserRule(instrumentRuleJson));
     }
 
-    public RuleJson lookup(InstrumentDomainEnum domain, InstrumentLevelEnum level, InstrumentTypeEnum type) {
+    public RuleJson getMetaRule() {
+        return metaRule;
+    }
+
+    public RuleJson lookup(InstrumentMetadata metadata) {
         for (String oneRule: rules.keySet()) {
             List<String> ruleKey = Arrays.asList(oneRule.split("-"));
             if (ruleKey.size() != 3) {
@@ -62,10 +66,12 @@ public class InstrumentRuleManager {
             }
 
             String ruleDomainKey = ruleKey.get(0);
-            String ruleLevelKey = ruleKey.get(0);
-            String ruleTypeKey = ruleKey.get(0);
+            String ruleLevelKey = ruleKey.get(1);
+            String ruleTypeKey = ruleKey.get(2);
 
-            if (ruleDomainKey.contains(domain.name()) && ruleLevelKey.contains(level.name()) && ruleTypeKey.contains(type.name())) {
+            if (ruleDomainKey.contains(metadata.getInstrumentDomainEnum().getDomain()) &&
+                    ruleLevelKey.contains(metadata.getInstrumentLevelEnum().getLevel()) &&
+                    ruleTypeKey.contains(metadata.getInstrumentTypeEnum().getType())) {
                 return rules.get(oneRule);
             }
         }

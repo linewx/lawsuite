@@ -4,13 +4,14 @@ package com.linewx.law.instrument.meta.model;
  * Created by lugan on 12/16/2016.
  */
 public enum InstrumentTypeEnum {
-    ADJUDGEMENT("判决书"),
-    ARBITRATION("裁定书"),
-    INFORM("通知书"),
-    DECISION("裁定书"),
-    CONCILIATION("调解书"),
+    ADJUDGEMENT("判决"),
+    ARBITRATION("裁定"),
+    INFORM("通知"),
+    DECISION("决定"),
+    CONCILIATION("调解"),
     ORDER("令"),
-    OTHER("其他");
+    OTHER("其他"),
+    EMPTY("空");
 
     private final String type;
 

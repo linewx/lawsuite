@@ -17,6 +17,10 @@ public class Instrument implements java.io.Serializable {
 	@GeneratedValue
 	private Long id;
 
+	private String domainTag;
+	private String levelTag;
+	private String typeTag;
+
 	@Column(length = 1000)
 	private String accuser;  //原告
 	private String accuserAlias; //原告别名
@@ -479,5 +483,27 @@ public class Instrument implements java.io.Serializable {
 		this.sourceName = sourceName;
 	}
 
+	public String getDomainTag() {
+		return domainTag;
+	}
 
+	public void setDomainTag(String domainTag) {
+		this.domainTag = domainTag;
+	}
+
+	public String getLevelTag() {
+		return levelTag;
+	}
+
+	public void setLevelTag(String levelTag) {
+		this.levelTag = levelTag;
+	}
+
+	public String getTypeTag() {
+		return typeTag;
+	}
+
+	public void setTypeTag(String typeTag) {
+		this.typeTag = typeTag;
+	}
 }

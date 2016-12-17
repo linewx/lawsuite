@@ -10,6 +10,12 @@ public class InstrumentMetadata {
 
     public InstrumentTypeEnum instrumentTypeEnum;
 
+    public InstrumentMetadata() {
+        instrumentDomainEnum = InstrumentDomainEnum.EMPTY_DOMAIN;
+        instrumentLevelEnum = InstrumentLevelEnum.EMPTY_LEVEL;
+        instrumentTypeEnum = InstrumentTypeEnum.EMPTY;
+    }
+
     public InstrumentDomainEnum getInstrumentDomainEnum() {
         return instrumentDomainEnum;
     }

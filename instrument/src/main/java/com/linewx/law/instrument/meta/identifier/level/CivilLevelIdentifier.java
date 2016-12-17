@@ -16,18 +16,20 @@ public class CivilLevelIdentifier implements LevelIdentifier{
     public InstrumentLevelEnum identify(MetaParseContext context) {
         String number = context.getNumber();
 
-        if (number.contains("民初")) {
-            return InstrumentLevelEnum.FIRST_LEVEL;
-        }
-
-        if (number.contains("民终")) {
-            return InstrumentLevelEnum.SECOND_LEVEL;
-        }
-
         Matcher matcher = anotherPattern.matcher(number);
         if (matcher.matches()) {
             return InstrumentLevelEnum.ANOTHER_LEVEL;
         }
+
+        if (number.contains("初")) {
+            return InstrumentLevelEnum.FIRST_LEVEL;
+        }
+
+        if (number.contains("终")) {
+            return InstrumentLevelEnum.SECOND_LEVEL;
+        }
+
+
 
         return InstrumentLevelEnum.OTHER_LEVEL;
     }

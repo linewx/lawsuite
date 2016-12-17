@@ -19,6 +19,7 @@ public class DomainIdentifier {
 
         String number = context.getNumber();
 
+        //from number
         for (int i=0; i<number.length(); i++) {
             switch (number.charAt(i)) {
                 case '民':
@@ -30,9 +31,27 @@ public class DomainIdentifier {
                 case '行':
                     return InstrumentDomainEnum.ADMINISTRATION_DOMAIN;
                 default:
-                    throw  new InstrumentParserException("no domain found", InstrumentErrorCode.METADATA);
+                    break;
             }
         }
+
+        String type = context.getType();
+        //double confirm from type
+        for (int j=0; j<type.length(); j++) {
+            switch (type.charAt(j)) {
+                case '民':
+                    return InstrumentDomainEnum.CIVIL_DOMAIN;
+                case '刑':
+                    return InstrumentDomainEnum.CRIMINAL_DOMAIN;
+                case '执':
+                    return InstrumentDomainEnum.EXECUTION_DOMAIN;
+                case '行':
+                    return InstrumentDomainEnum.ADMINISTRATION_DOMAIN;
+                default:
+                    break;
+            }
+        }
+
         throw  new InstrumentParserException("no domain found", InstrumentErrorCode.METADATA);
     }
 }
