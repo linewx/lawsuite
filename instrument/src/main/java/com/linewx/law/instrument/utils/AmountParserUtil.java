@@ -13,6 +13,7 @@ public class AmountParserUtil {
     }*/
 
     private static Pattern amountPattern;
+    private static String totalPattern = "合计([\\d|，.|点|〇|一|二|三|四|五|六|七|八|九|十|百|千|万|亿]+)元";
     private static Map<Character, Character> numberMapping = new HashMap<>();
     static {
         amountPattern = Pattern.compile("([\\d|，.|点|〇|一|二|三|四|五|六|七|八|九|十|百|千|万|亿]+)元");
@@ -31,7 +32,15 @@ public class AmountParserUtil {
 
 
     public static Long getMainAmountSum(String amountText) {
-        return sumMainAmount(parseMainAmount(amountText));
+        return sumMainAmount(parseMainAmount(cleanTotalNumber(cleanBracketContent(amountText))));
+    }
+
+    public static String cleanBracketContent(String amountText) {
+        return amountText.replaceAll("（.*?）", "");
+    }
+
+    public static String cleanTotalNumber(String amountText) {
+        return amountText.replaceAll(totalPattern, "");
     }
 
     private static Long sumMainAmount(Set<Long> mainAmount) {
